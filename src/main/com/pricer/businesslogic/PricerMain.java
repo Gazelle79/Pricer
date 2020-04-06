@@ -23,7 +23,7 @@ public class PricerMain {
         PricerParser dataParser = new PricerParser();
         try
         {
-            pricerDataInfo = dataParser.readMarketData(inputFileNameAndPath);
+            pricerDataInfo = dataParser.ReadMarketData(inputFileNameAndPath);
             System.out.println("Reading from file: \n" + inputFileNameAndPath
                     + "\n\n Market data: \n\n" + pricerDataInfo + "\n");
         }

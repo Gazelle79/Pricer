@@ -39,7 +39,7 @@ public abstract class Order
         return timeStamp;
     }
 
-    public orderType getThisOrderType()
+    public orderType getOrderType()
     {
         return thisOrderType;
     }

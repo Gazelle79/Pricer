@@ -6,7 +6,7 @@ public class ReduceOrder extends Order
     {
         return super.getTimeStamp();
     }
-    public orderType getOrderType() { return super.getThisOrderType(); }
+    public orderType getOrderType() { return super.getOrderType(); }
     public String getId() { return super.getId(); }
     public int getSize() { return super.getOrderSize(); }
 

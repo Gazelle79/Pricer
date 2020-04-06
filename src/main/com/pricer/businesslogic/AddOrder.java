@@ -2,7 +2,9 @@ package main.com.pricer.businesslogic;
 
 public class AddOrder extends Order
 {
-    public char getSide()
+    public enum sideType {BUY, SELL}
+
+    public sideType getSide()
     {
         return side;
     }
@@ -14,14 +16,25 @@ public class AddOrder extends Order
     {
         return super.getTimeStamp();
     }
-    public orderType getOrderType() { return super.getThisOrderType(); }
+    public orderType getOrderType() { return super.getOrderType(); }
     public String getId() { return super.getId(); }
     public int getSize() { return super.getOrderSize(); }
 
-    private char side = 'A';
+
+
+    public void setSide(sideType side)
+    {
+        this.side = side;
+    }
+    public void setPrice(double price)
+    {
+        this.price = price;
+    }
+
+    private sideType side = sideType.BUY;
     private double price = 0.0;
 
-    public AddOrder(int timeStamp, char orderType, String orderId, char side, double price, short orderSize)
+    public AddOrder(int timeStamp, char orderType, String orderId, sideType side, double price, short orderSize)
     {
         super.setTimeStamp(timeStamp);
         super.setOrderType(orderType);
