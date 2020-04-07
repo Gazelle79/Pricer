@@ -2,13 +2,14 @@ package main.com.pricer.businesslogic;
 
 import java.io.BufferedReader;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Hashtable;
 
 
 public class PricerParser
 {
-    private List<Order> orderList = null;
+    //private List<Order> orderList = null;
+    private Hashtable<String, AddOrder> orderTable = null;
     private int targetSize = 200;
 
     private int buyShareCount = 0;
@@ -20,15 +21,14 @@ public class PricerParser
 
     public PricerParser()
     {
-        orderList = new ArrayList<Order>();
-
+        orderTable = new Hashtable<>();
     }
 
     public String ReadMarketData(String inputFileNameAndPath) throws IOException
     {
         BufferedReader reader = null;
         String marketDataText = null;
-        StringBuilder contents = new StringBuilder();
+        StringBuilder inputDataString = new StringBuilder();
 
         /*Not put in try / catch statement so error could be sent back to method caller.*/
         InputStream is = new FileInputStream(inputFileNameAndPath);
@@ -49,16 +49,17 @@ public class PricerParser
                 case "A":
                     {
                         //Make an Add order.
-                        Order addOrder = this.CreateAddOrder(orderData);
-                        orderList.add(addOrder);
+                        AddOrder addOrder = this.CreateAddOrder(orderData);
+                        orderTable.put(addOrder.getId(), addOrder);
                         this.CalculateMarketData(addOrder);
                         break;
                     }
                 case "R":
                     {
                         //Make an Reduce order.
-                        Order reduceOrder = this.CreateReduceOrder(orderData);
-                        orderList.add(reduceOrder);
+                        ReduceOrder reduceOrder = this.CreateReduceOrder(orderData);
+                        //Do NOT add a Reduce order to the book! Doing so means that a unique string ID isn't unique
+                        // anymore, because an add and a reduce order both refer to it.
                         this.CalculateMarketData(reduceOrder);
                         break;
                     }
@@ -69,11 +70,10 @@ public class PricerParser
                     }
 
             }
-            contents.append(marketDataText + "\n");
+            inputDataString.append(marketDataText + "\n");
         }
         reader.close();
-
-        return contents.toString();
+        return inputDataString.toString();
     }
 
 
@@ -87,45 +87,72 @@ public class PricerParser
              * order. When share count exceeds the target_size, print the share amount and the
              * dollar total as output.
              * */
-            case ADD:
+            case 'A':
             {
                AddOrder order = (AddOrder)orderToCalculate;
 
-               if (order.getSide() == AddOrder.sideType.BUY)
+               if (order.getSide() == 'B')
                {
                    buyShareCount += order.getSize();
                    buyDollarAmount += (buyShareCount * order.getPrice());
+                   if (buyShareCount >= targetSize)
+                   {
+                       this.WriteMarketData(order.getTimeStamp(), order.getSide(), buyDollarAmount);
+                   }
                }
-               else if (order.getSide() == AddOrder.sideType.SELL)
+               else if (order.getSide() == 'S')
                {
-                   sellShareCount += order.getSize();;
-                   sellDollarAmount += (buyShareCount * order.getPrice());
+                   sellShareCount += order.getSize();
+                   sellDollarAmount += (sellShareCount * order.getPrice());
+                   if (sellShareCount >= targetSize)
+                   {
+                       this.WriteMarketData(order.getTimeStamp(), order.getSide(), sellDollarAmount);
+                   }
                }
                else{}
-
-               if(buyShareCount >= targetSize || sellShareCount >= targetSize)
-               {
-                   this.WriteMarketData();
-               }
 
                 break;
             }
 
             /* REDUCE ORDER:
-             * Match this order to one that's in the list. Reduce the number of shares accordingly. When
-             * shares are reduced to zero, remove that order from the list / book.
+             * Match this order to one that's in the list. Reduce the number of overall buy / sell shares accordingly.
+             * Reduce number of shares from the order that this reduce order is pointing to.
+             * When this order's shares are reduced to zero, remove that order from the book.
              * Reduce Total Share count and total dollar amount accordingly.
              * */
-            case REDUCE:
+            case 'R':
             {
-                ReduceOrder order = (ReduceOrder)orderToCalculate;
+                ReduceOrder reduceOrder = (ReduceOrder)orderToCalculate;
+                String reduceOrderId = reduceOrder.getId();
+                AddOrder addOrderToReduce = null;
 
-                this.WriteMarketData();
-                orderList.remove(order.getId());
+                if(orderTable.containsKey(reduceOrderId))
+                {
+                    addOrderToReduce = orderTable.get(reduceOrderId);
+                    int sharesToRemove = addOrderToReduce.getSize() - reduceOrder.getSize();
 
+                    if(addOrderToReduce.getSide() == 'B')
+                    {
+                        buyShareCount -= addOrderToReduce.getSize();
+                        buyDollarAmount -= (buyShareCount * addOrderToReduce.getPrice());
+                        addOrderToReduce.setOrderSize(sharesToRemove);
+                    }
+                    else if(addOrderToReduce.getSide() == 'S')
+                    {
+                        sellShareCount -= addOrderToReduce.getSize();
+                        sellDollarAmount -= (sellShareCount * addOrderToReduce.getPrice());
+                        addOrderToReduce.setOrderSize(sharesToRemove);
+                    }
+                    else
+                    {}
+
+                    if(addOrderToReduce.getSize() == 0)
+                    {
+                        orderTable.remove(addOrderToReduce);
+                    }
+                }
                 break;
             }
-
             default:
             {
                 break;
@@ -134,26 +161,26 @@ public class PricerParser
     }
 
     //Write out Market data, where it's appropriate.
-    public void WriteMarketData()
+    public void WriteMarketData(int timestamp, char action, double expense)
     {
-        //Write something!!
+        System.out.println(timestamp + " " + action + " " + expense);
     }
 
     /*Take a line of text. Convert it into an Order object by parsing data & putting that data into an
     * Order object. Put that Order object in a List.*/
-    private Order CreateAddOrder(String[] marketDataText)
+    private AddOrder CreateAddOrder(String[] marketDataText)
     {
         int timeStamp = Integer.parseInt(marketDataText[0]);
         char orderType = marketDataText[1].charAt(0);
         String orderId = marketDataText[2];
-        char sideType = marketDataText[3].charAt(0);
+        char side = marketDataText[3].charAt(0);
         double price = Double.parseDouble(marketDataText[4]);
         short orderSize = Short.parseShort(marketDataText[5]);
 
-        return new AddOrder(timeStamp, orderType, orderId, sideType, price, orderSize);
+        return new AddOrder(timeStamp, orderType, orderId, side, price, orderSize);
     }
 
-    private Order CreateReduceOrder(String[] marketDataText)
+    private ReduceOrder CreateReduceOrder(String[] marketDataText)
     {
         int timeStamp = Integer.parseInt(marketDataText[0]);
         char orderType = marketDataText[1].charAt(0);

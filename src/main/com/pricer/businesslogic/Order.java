@@ -3,25 +3,21 @@ package main.com.pricer.businesslogic;
 
 public abstract class Order
 {
-    public enum orderType {ADD, REDUCE}
+    //public enum orderType {ADD, REDUCE}
+
+    private int timeStamp = 0;
+    private char orderType = 'A';
+    private String id = "123";
+    private int orderSize = 0;
 
     public void setTimeStamp(int timeStamp)
     {
         this.timeStamp = timeStamp;
     }
 
-    public void setOrderType(char thisOrderType)
+    public void setOrderType(char orderType)
     {
-        if (thisOrderType == 'A')
-        {
-            this.thisOrderType = orderType.ADD;
-        }
-        else if(thisOrderType == 'R')
-        {
-            this.thisOrderType = orderType.REDUCE;
-        }
-        else
-        {}
+        this.orderType = orderType;
     }
 
     public void setId(String id)
@@ -29,7 +25,7 @@ public abstract class Order
         this.id = id;
     }
 
-    public void setOrderSize(short orderSize)
+    public void setOrderSize(int orderSize)
     {
         this.orderSize = orderSize;
     }
@@ -39,9 +35,9 @@ public abstract class Order
         return timeStamp;
     }
 
-    public orderType getOrderType()
+    public char getOrderType()
     {
-        return thisOrderType;
+        return orderType;
     }
 
     public String getId()
@@ -49,14 +45,9 @@ public abstract class Order
         return id;
     }
 
-    public short getOrderSize()
+    public int getOrderSize()
     {
         return orderSize;
     }
-
-    private int timeStamp = 0;
-    private orderType thisOrderType = orderType.ADD;
-    private String id = "123";
-    private short orderSize = 0;
 
 }

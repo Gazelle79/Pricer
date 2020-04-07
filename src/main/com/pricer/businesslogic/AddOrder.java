@@ -2,39 +2,59 @@ package main.com.pricer.businesslogic;
 
 public class AddOrder extends Order
 {
-    public enum sideType {BUY, SELL}
+    //public enum sideType {BUY, SELL}
 
-    public sideType getSide()
+    private char side = 'B';
+    private double price = 0.0;
+
+    public char getSide()
     {
         return side;
     }
+
     public double getPrice()
     {
         return price;
     }
+
     public int getTimeStamp()
     {
         return super.getTimeStamp();
     }
-    public orderType getOrderType() { return super.getOrderType(); }
-    public String getId() { return super.getId(); }
-    public int getSize() { return super.getOrderSize(); }
+
+    public char getOrderType()
+    {
+        return super.getOrderType();
+    }
+
+    public String getId()
+    {
+        return super.getId();
+    }
+
+    public int getSize()
+    {
+        return super.getOrderSize();
+    }
 
 
-
-    public void setSide(sideType side)
+    public void setSide(char side)
     {
         this.side = side;
     }
+
     public void setPrice(double price)
     {
         this.price = price;
     }
 
-    private sideType side = sideType.BUY;
-    private double price = 0.0;
+    public void setOrderSize(int size)
+    {
+        super.setOrderSize(size);
+    }
 
-    public AddOrder(int timeStamp, char orderType, String orderId, sideType side, double price, short orderSize)
+
+    public AddOrder(int timeStamp, char orderType, String orderId, char side, double price, int orderSize)
     {
         super.setTimeStamp(timeStamp);
         super.setOrderType(orderType);
