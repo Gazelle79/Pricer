@@ -2,7 +2,6 @@ package main.com.pricer.businesslogic;
 
 import java.io.BufferedReader;
 import java.io.*;
-import java.util.HashMap;
 import java.util.Hashtable;
 
 
@@ -10,13 +9,15 @@ public class PricerParser
 {
     //private List<Order> orderList = null;
     private Hashtable<String, AddOrder> orderTable = null;
-    private int targetSize = 200;
+    private Hashtable<String, Double> sellTable = null; //sort Descending
+    private Hashtable<String, Double> buyTable = null; //sort Ascending
+    private final int targetSize = 200;
+    private int remainingShares = targetSize;
 
     private int buyShareCount = 0;
     private double buyDollarAmount = 0.0;
     private int sellShareCount = 0;
     private double sellDollarAmount = 0.0;
-
 
 
     public PricerParser()
@@ -135,18 +136,18 @@ public class PricerParser
                     {
                         buyShareCount -= addOrderToReduce.getSize();
                         buyDollarAmount -= (buyShareCount * addOrderToReduce.getPrice());
-                        addOrderToReduce.setOrderSize(sharesToRemove);
+                        remainingShares -= sharesToRemove;
                     }
                     else if(addOrderToReduce.getSide() == 'S')
                     {
                         sellShareCount -= addOrderToReduce.getSize();
                         sellDollarAmount -= (sellShareCount * addOrderToReduce.getPrice());
-                        addOrderToReduce.setOrderSize(sharesToRemove);
+                        remainingShares -= sharesToRemove;
                     }
                     else
                     {}
 
-                    if(addOrderToReduce.getSize() == 0)
+                    if(remainingShares == 0)
                     {
                         orderTable.remove(addOrderToReduce);
                     }

@@ -38,21 +38,6 @@ public class AddOrder extends Order
     }
 
 
-    public void setSide(char side)
-    {
-        this.side = side;
-    }
-
-    public void setPrice(double price)
-    {
-        this.price = price;
-    }
-
-    public void setOrderSize(int size)
-    {
-        super.setOrderSize(size);
-    }
-
 
     public AddOrder(int timeStamp, char orderType, String orderId, char side, double price, int orderSize)
     {
