@@ -2,15 +2,17 @@ package main.com.pricer.businesslogic;
 
 import java.io.BufferedReader;
 import java.io.*;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Vector;
+import java.util.Collections;
 
 
 public class PricerParser
 {
     //private List<Order> orderList = null;
-    private Hashtable<String, AddOrder> orderTable = null;
-    private Hashtable<String, Double> sellTable = null; //sort Descending
-    private Hashtable<String, Double> buyTable = null; //sort Ascending
+    private HashMap<String, AddOrder> orderMap = null;
+    private HashMap<String, Double> bidMap = null; //A HashTable that takes an ID and a bid price. Corresponds to an object in orderTable.
+    Vector bidVector = null; //A vector to sort the bids in bidTable.
     private final int targetSize = 200;
     private int remainingShares = targetSize;
 
@@ -22,7 +24,9 @@ public class PricerParser
 
     public PricerParser()
     {
-        orderTable = new Hashtable<>();
+        orderMap = new HashMap<>();
+        bidMap = new HashMap<>();
+        bidVector = new Vector(bidMap.values());
     }
 
     public String ReadMarketData(String inputFileNameAndPath) throws IOException
@@ -51,7 +55,12 @@ public class PricerParser
                     {
                         //Make an Add order.
                         AddOrder addOrder = this.CreateAddOrder(orderData);
-                        orderTable.put(addOrder.getId(), addOrder);
+                        orderMap.put(addOrder.getId(), addOrder);
+
+                        //Create a seperate Map for bids. Contains only order id & bid price.
+                        //Vector will sort this later to keep track of highest & lowest bids.
+                        bidMap.put(addOrder.getId(), addOrder.getPrice());
+
                         this.CalculateMarketData(addOrder);
                         break;
                     }
@@ -94,19 +103,45 @@ public class PricerParser
 
                if (order.getSide() == 'B')
                {
+
+
                    buyShareCount += order.getSize();
-                   buyDollarAmount += (buyShareCount * order.getPrice());
                    if (buyShareCount >= targetSize)
                    {
+                       Collections.sort(bidVector); //BUY: Sort ALL bids from highest to lowest.
+
+                       /*Look at the sorted bid list. Use the id # to get the corresponding bid in
+                       OrderMap. In descending order, hit each bid:
+                        - # of shares they wanted
+                        - the price they wanted
+                        Multiply each bid price times the number of shares. Add this number to a total.
+                        (BuyDollarAmount)
+
+                        Do this for all bids in the list until the number of bids calculated is equal
+                        to targetSize.*/
+
                        this.WriteMarketData(order.getTimeStamp(), order.getSide(), buyDollarAmount);
                    }
                }
                else if (order.getSide() == 'S')
                {
+
+
                    sellShareCount += order.getSize();
-                   sellDollarAmount += (sellShareCount * order.getPrice());
                    if (sellShareCount >= targetSize)
                    {
+                       Collections.sort(bidVector, Collections.reverseOrder()); //SELL: Sort ALL bids from lowest to highest.
+
+                       /*Look at the sorted bid list. Use the id # to get the corresponding bid in
+                       OrderMap. In ascending order, hit each bid:
+                        - # of shares they wanted
+                        - the price they wanted
+                        Multiply each bid price times the number of shares. Add this number to a total.
+                        (SellDollarAmount)
+
+                        Do this for all bids in the list until the number of bids calculated is equal
+                        to targetSize.*/
+
                        this.WriteMarketData(order.getTimeStamp(), order.getSide(), sellDollarAmount);
                    }
                }
@@ -127,9 +162,9 @@ public class PricerParser
                 String reduceOrderId = reduceOrder.getId();
                 AddOrder addOrderToReduce = null;
 
-                if(orderTable.containsKey(reduceOrderId))
+                if(orderMap.containsKey(reduceOrderId))
                 {
-                    addOrderToReduce = orderTable.get(reduceOrderId);
+                    addOrderToReduce = orderMap.get(reduceOrderId);
                     int sharesToRemove = addOrderToReduce.getSize() - reduceOrder.getSize();
 
                     if(addOrderToReduce.getSide() == 'B')
@@ -149,7 +184,7 @@ public class PricerParser
 
                     if(remainingShares == 0)
                     {
-                        orderTable.remove(addOrderToReduce);
+                        orderMap.remove(addOrderToReduce);
                     }
                 }
                 break;
