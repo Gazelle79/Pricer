@@ -24,8 +24,8 @@ public class PricerMain {
         try
         {
             pricerDataInfo = dataParser.ReadMarketData(inputFileNameAndPath);
-            System.out.println("Reading from file: \n" + inputFileNameAndPath
-                    + "\n\n Market data: \n\n" + pricerDataInfo + "\n");
+            //System.out.println("Reading from file: \n" + inputFileNameAndPath
+                //+ "\n\n Market data: \n\n" + pricerDataInfo + "\n");
         }
         catch(Exception e)
         {
