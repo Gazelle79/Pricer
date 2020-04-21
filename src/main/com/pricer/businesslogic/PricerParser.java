@@ -87,7 +87,7 @@ public class PricerParser
 
     public void CalculateMarketData(Order orderToCalculate)
     {
-        switch (orderToCalculate.getOrderType())
+        switch (orderToCalculate.orderType)
         {
             /*
              * ADD ORDER:
@@ -218,8 +218,10 @@ public class PricerParser
     }
 
     //Write out Market data, where it's appropriate.
-    public void WriteMarketData(int timestamp, char action, double expense)
+    public void WriteMarketData(int timestamp, char side, double expense)
     {
+        char action = (side == 'B' ? 'S' : 'B');
+
         System.out.println(timestamp + " " + action + " " + expense);
     }
 
