@@ -4,20 +4,19 @@ public class ReduceOrder extends Order
 {
     public int getTimeStamp()
     {
-        return super.getTimeStamp();
+        return super.timeStamp;
     }
-    //public orderType getOrderType() { return super.getOrderType(); }
-    public char getOrderType() { return super.getOrderType(); }
-    public String getId() { return super.getId(); }
-    public int getSize() { return super.getOrderSize(); }
+    public char getOrderType() { return super.orderType; }
+    public String getId() { return super.id; }
+    public int getSize() { return super.orderSize; }
 
 
     public ReduceOrder(int timeStamp, char orderType, String orderId, short orderSize)
     {
-        super.setTimeStamp(timeStamp);
-        super.setOrderType(orderType);
-        super.setId(orderId);
-        super.setOrderSize(orderSize);
+        super.timeStamp  = timeStamp;
+        super.orderType = orderType;
+        super.id = orderId;
+        super.orderSize = orderSize;
     }
 
 }
