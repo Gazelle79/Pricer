@@ -87,7 +87,7 @@ public class PricerParser
 
     public void CalculateMarketData(Order orderToCalculate)
     {
-        switch (orderToCalculate.getOrderType())
+        switch (orderToCalculate.orderType)
         {
             /*
              * ADD ORDER:
@@ -116,7 +116,7 @@ public class PricerParser
 
                        Collections.sort(bidList, Collections.reverseOrder()); //BUY: Sort ALL bids from lowest to highest.
 
-                       int thisShareCount = 0;
+                       int currentShareCount = 0;
                        double income = 0.0;
                        AddOrder orderToBuy = null;
 
@@ -125,17 +125,27 @@ public class PricerParser
                            String thisId = bidList.get(i).getId();
                            orderToBuy = orderMap.get(thisId);
 
-                           income += (orderToBuy.getSize() * orderToBuy.getPrice());
-                           thisShareCount += orderToBuy.getSize();
-                           orderMap.remove(thisId);
-                           bidList.remove(orderToBuy);
-
-                           if(thisShareCount >= buyShareCount)
+                           if((orderToBuy.getSize() + currentShareCount) > targetSize)
                            {
-                               break;
+                               int adjustedSharesToBuy = targetSize - currentShareCount;
+
+                               income += (adjustedSharesToBuy * orderToBuy.getPrice());
+                               remainingShares = (currentShareCount + orderToBuy.getSize()) - targetSize;
+                               currentShareCount += adjustedSharesToBuy;
                            }
+                           else
+                           {
+                               income += (orderToBuy.getSize() * orderToBuy.getPrice());
+                               remainingShares = targetSize - currentShareCount;
+                               currentShareCount += orderToBuy.getSize();
+                           }
+
+                           if( currentShareCount == 200 )
+                           { break; }
+
+                           this.WriteMarketData(order.getTimeStamp(), order.getSide(), income);
                        }
-                       this.WriteMarketData(order.getTimeStamp(), order.getSide(), income);
+
                    }
                }
                else if (order.getSide() == 'S')
@@ -145,7 +155,7 @@ public class PricerParser
                    {
                        Collections.sort(bidList, new PriceCompare()); //SELL: Sort ALL bids from highest to lowest.
 
-                       int thisShareCount = 0;
+                       int currentShareCount = 0;
                        double expense = 0.0;
                        AddOrder orderToSell = null;
 
@@ -154,17 +164,25 @@ public class PricerParser
                            String thisId = bidList.get(i).getId();
                            orderToSell = orderMap.get(thisId);
 
-                           expense += (orderToSell.getSize() * orderToSell.getPrice());
-                           thisShareCount += orderToSell.getSize();
-                           orderMap.remove(thisId);
-                           bidList.remove(orderToSell);
-
-                           if(thisShareCount >= sellShareCount)
+                           if((orderToSell.getSize() + currentShareCount) > targetSize)
                            {
-                               break;
+                               int adjustedShareSize = targetSize - currentShareCount;
+
+                               expense += (adjustedShareSize * orderToSell.getPrice());
+                               remainingShares = (currentShareCount + orderToSell.getSize()) - targetSize;
+                               currentShareCount += adjustedShareSize;
                            }
+                           else {
+                               expense += (orderToSell.getSize() * orderToSell.getPrice());
+                               remainingShares = targetSize - currentShareCount;
+                               currentShareCount += orderToSell.getSize();
+                           }
+
+                           if( currentShareCount == 200 )
+                           { break; }
+
+                           this.WriteMarketData(order.getTimeStamp(), order.getSide(), expense);
                        }
-                       this.WriteMarketData(order.getTimeStamp(), order.getSide(), expense);
                    }
                }
                else{}
@@ -187,22 +205,25 @@ public class PricerParser
                 if(orderMap.containsKey(reduceOrderId))
                 {
                     addOrderToReduce = orderMap.get(reduceOrderId);
-                    int sharesToRemove = addOrderToReduce.getSize() - reduceOrder.getSize();
+
+                    //Remove shares from the Add order.
+                    int sharesToRemove = reduceOrder.getSize();
+                    addOrderToReduce.removeShares(reduceOrder.getSize());
 
                     if(addOrderToReduce.getSide() == 'B')
                     {
-                        buyShareCount -= addOrderToReduce.getSize();
-                        remainingShares -= sharesToRemove;
+                        buyShareCount -= sharesToRemove;
+                        remainingShares += sharesToRemove;
                     }
                     else if(addOrderToReduce.getSide() == 'S')
                     {
-                        sellShareCount -= addOrderToReduce.getSize();
-                        remainingShares -= sharesToRemove;
+                        sellShareCount -= sharesToRemove;
+                        remainingShares += sharesToRemove;
                     }
                     else
                     {}
 
-                    if(remainingShares == 0)
+                    if(addOrderToReduce.getSize() == 0)
                     {
                         orderMap.remove(addOrderToReduce);
                         bidList.remove(addOrderToReduce);
