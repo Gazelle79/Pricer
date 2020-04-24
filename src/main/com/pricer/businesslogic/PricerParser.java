@@ -11,8 +11,8 @@ import java.util.List;
 public class PricerParser
 {
     private HashMap<String, AddOrder> orderMap = null;
-    //private HashMap<String, Double> bidMap = null; //A HashMap that takes an ID and a bid price. Corresponds to an object in orderMap.
-    private List<AddOrder> bidList = null; //A list to sort the orders in bidMap.
+    private List<AddOrder> sellBidList = null; //A list to sort the orders in bidMap.
+    private List<AddOrder> buyBidList = null; //A list to sort the orders in bidMap.
 
     private final int targetSize = 200;
     private int remainingShares = targetSize;
@@ -24,7 +24,8 @@ public class PricerParser
     public PricerParser()
     {
         orderMap = new HashMap<>();
-        bidList = new ArrayList();
+        sellBidList = new ArrayList();
+        buyBidList = new ArrayList();
     }
 
     public String ReadMarketData(String inputFileNameAndPath) throws IOException
@@ -39,18 +40,17 @@ public class PricerParser
 
         while ((marketDataText = reader.readLine()) != null)
         {
-            /*
-            * Make a new Order object.
-            * Parse each character in this line of text.
-            * Assign each character to its' specific piece of data
-            * in an Order.
-            * Put that order object in a list of Order objects.
-            * */
-            String[] orderData = marketDataText.split(" ");
-            switch(orderData[1])
-            {
-                case "A":
-                    {
+                /*
+                 * Make a new Order object.
+                 * Parse each character in this line of text.
+                 * Assign each character to its' specific piece of data
+                 * in an Order.
+                 * Put that order object in a list of Order objects.
+                 * */
+                String[] orderData = marketDataText.split(" ");
+                switch (orderData[1])
+                {
+                    case "A": {
                         //Make an Add order.
                         AddOrder addOrder = this.CreateAddOrder(orderData);
                         orderMap.put(addOrder.getId(), addOrder);
@@ -58,27 +58,36 @@ public class PricerParser
                         //Create a seperate Map for bids. Contains only order id & bid price.
                         //Vector will sort this later to keep track of highest & lowest bids.
                         ///bidMap.put(addOrder.getId(), addOrder.getPrice());
-                        bidList.add(addOrder);
+
+                        if (addOrder.getSide() == 'B')
+                        {
+                            buyBidList.add(addOrder);
+                        }
+                        else if (addOrder.getSide() == 'S')
+                        {
+                            sellBidList.add(addOrder);
+                        }
 
                         this.CalculateMarketData(addOrder);
-                        break;
+
                     }
-                case "R":
+                    case "R":
                     {
                         //Make an Reduce order.
                         ReduceOrder reduceOrder = this.CreateReduceOrder(orderData);
                         //Do NOT add a Reduce order to the book! Doing so means that a unique string ID isn't unique
                         // anymore, because an add and a reduce order both refer to it.
                         this.CalculateMarketData(reduceOrder);
-                        break;
+
                     }
-                default:
+                    default:
                     {
                         //Do nothing, throw an error, etc.
-                        break;
+
                     }
-            }
-            inputDataString.append(marketDataText + "\n");
+                }
+                inputDataString.append(marketDataText + "\n");
+
         }
         reader.close();
         return inputDataString.toString();
@@ -97,11 +106,11 @@ public class PricerParser
              * */
             case 'A':
             {
-               AddOrder order = (AddOrder)orderToCalculate;
+               AddOrder insertedOrder = (AddOrder)orderToCalculate;
 
-               if (order.getSide() == 'B')
+               if (insertedOrder.getSide() == 'B')
                {
-                   buyShareCount += order.getSize();
+                   buyShareCount += insertedOrder.getSize();
                    if (buyShareCount >= targetSize)
                    {
                        /*Look at the sorted bid list. Use the id # to get the corresponding bid in
@@ -114,15 +123,16 @@ public class PricerParser
                         Do this for all bids in the list until the number of bids calculated is equal
                         to targetSize.*/
 
-                       Collections.sort(bidList, Collections.reverseOrder()); //BUY: Sort ALL bids from lowest to highest.
+                       //Action = SELL: Sort ALL bids from highest to lowest.
+                       Collections.sort(buyBidList, new PriceCompare());
 
                        int currentShareCount = 0;
                        double income = 0.0;
                        AddOrder orderToBuy = null;
 
-                       for(int i = 0; i < bidList.size(); i++)
+                       for(int i = 0; i < buyBidList.size(); i++)
                        {
-                           String thisId = bidList.get(i).getId();
+                           String thisId = buyBidList.get(i).getId();
                            orderToBuy = orderMap.get(thisId);
 
                            if((orderToBuy.getSize() + currentShareCount) > targetSize)
@@ -130,39 +140,39 @@ public class PricerParser
                                int adjustedSharesToBuy = targetSize - currentShareCount;
 
                                income += (adjustedSharesToBuy * orderToBuy.getPrice());
-                               remainingShares = (currentShareCount + orderToBuy.getSize()) - targetSize;
                                currentShareCount += adjustedSharesToBuy;
+                               remainingShares = (currentShareCount + orderToBuy.getSize()) - targetSize;
                            }
                            else
                            {
                                income += (orderToBuy.getSize() * orderToBuy.getPrice());
-                               remainingShares = targetSize - currentShareCount;
                                currentShareCount += orderToBuy.getSize();
+                               remainingShares = targetSize - currentShareCount;
                            }
+                           //orderMap.remove(orderToBuy);
+                           //buyBidList.remove(orderToBuy);
 
-                           if( currentShareCount == 200 )
-                           { break; }
-
-                           this.WriteMarketData(order.getTimeStamp(), order.getSide(), income);
                        }
-
+                       this.WriteMarketData(insertedOrder.getTimeStamp(), insertedOrder.getAction(), income);
                    }
                }
-               else if (order.getSide() == 'S')
+               else if (insertedOrder.getSide() == 'S')
                {
-                   sellShareCount += order.getSize();
+                   sellShareCount += insertedOrder.getSize();
                    if (sellShareCount >= targetSize)
                    {
-                       Collections.sort(bidList, new PriceCompare()); //SELL: Sort ALL bids from highest to lowest.
+                       //Action = BUY: Sort ALL bids from lowest to highest.
+                       Collections.sort(sellBidList, Collections.reverseOrder());
 
                        int currentShareCount = 0;
                        double expense = 0.0;
                        AddOrder orderToSell = null;
 
-                       for(int i = 0; i < bidList.size(); i++)
+                       for(int i = 0; i < sellBidList.size(); i++)
                        {
-                           String thisId = bidList.get(i).getId();
+                           String thisId = sellBidList.get(i).getId();
                            orderToSell = orderMap.get(thisId);
+
 
                            if((orderToSell.getSize() + currentShareCount) > targetSize)
                            {
@@ -172,17 +182,18 @@ public class PricerParser
                                remainingShares = (currentShareCount + orderToSell.getSize()) - targetSize;
                                currentShareCount += adjustedShareSize;
                            }
-                           else {
+                           else
+                           {
                                expense += (orderToSell.getSize() * orderToSell.getPrice());
                                remainingShares = targetSize - currentShareCount;
                                currentShareCount += orderToSell.getSize();
                            }
 
-                           if( currentShareCount == 200 )
-                           { break; }
+                           //orderMap.remove(orderToSell);
+                           //sellBidList.remove(orderToSell);
 
-                           this.WriteMarketData(order.getTimeStamp(), order.getSide(), expense);
                        }
+                       this.WriteMarketData(insertedOrder.getTimeStamp(), insertedOrder.getAction(), expense);
                    }
                }
                else{}
@@ -201,6 +212,7 @@ public class PricerParser
                 ReduceOrder reduceOrder = (ReduceOrder)orderToCalculate;
                 String reduceOrderId = reduceOrder.getId();
                 AddOrder addOrderToReduce = null;
+                double incomeOrExpense = 0.0;
 
                 if(orderMap.containsKey(reduceOrderId))
                 {
@@ -208,17 +220,43 @@ public class PricerParser
 
                     //Remove shares from the Add order.
                     int sharesToRemove = reduceOrder.getSize();
-                    addOrderToReduce.removeShares(reduceOrder.getSize());
+                    addOrderToReduce.reduceShares(sharesToRemove);
 
                     if(addOrderToReduce.getSide() == 'B')
                     {
+                        /*
+                        * If it's buy or sell, go to buyBidList or SellBidList,
+                        * respectively.
+                        *
+                        * Use bidList.indexOf() to get the index of this object.
+                        * Change the share size of that object in sellBidList or buyBidList.
+                        * */
+
+                        AddOrder buyOrderToReduce = buyBidList.get(buyBidList.indexOf(addOrderToReduce));
+                        buyOrderToReduce.reduceShares(reduceOrder.getSize());
+
+                        //Share sizes have changed. Re-sort the list.
+                        //Action = SELL: Sort ALL bids from highest to lowest.
+                        Collections.sort(buyBidList, new PriceCompare());
+
                         buyShareCount -= sharesToRemove;
                         remainingShares += sharesToRemove;
+                        incomeOrExpense = (buyOrderToReduce.getSize() * buyOrderToReduce.getPrice());
+                        this.WriteMarketData(reduceOrder.getTimeStamp(), buyOrderToReduce.getAction(), incomeOrExpense);
                     }
                     else if(addOrderToReduce.getSide() == 'S')
                     {
+                        AddOrder sellOrderToReduce = sellBidList.get(sellBidList.indexOf(addOrderToReduce));
+                        sellOrderToReduce.reduceShares(reduceOrder.getSize());
+
+                        //Share sizes have changed. Re-sort the list.
+                        //Action = BUY: Sort ALL bids from lowest to highest.
+                        Collections.sort(sellBidList, Collections.reverseOrder());
+
                         sellShareCount -= sharesToRemove;
                         remainingShares += sharesToRemove;
+                        incomeOrExpense = (sellOrderToReduce.getSize() * sellOrderToReduce.getPrice());
+                        this.WriteMarketData(reduceOrder.getTimeStamp(), sellOrderToReduce.getAction(), incomeOrExpense);
                     }
                     else
                     {}
@@ -226,8 +264,19 @@ public class PricerParser
                     if(addOrderToReduce.getSize() == 0)
                     {
                         orderMap.remove(addOrderToReduce);
-                        bidList.remove(addOrderToReduce);
+
+                        if(addOrderToReduce.getSide() == 'B')
+                        {
+                            buyBidList.remove(addOrderToReduce);
+                        }
+                        else if (addOrderToReduce.getSide() == 'S')
+                        {
+                            sellBidList.remove(addOrderToReduce);
+                        }
+                        else
+                        {}
                     }
+
                 }
                 break;
             }
@@ -239,10 +288,8 @@ public class PricerParser
     }
 
     //Write out Market data, where it's appropriate.
-    public void WriteMarketData(int timestamp, char side, double expense)
+    public void WriteMarketData(int timestamp, char action, double expense)
     {
-        char action = (side == 'B' ? 'S' : 'B');
-
         System.out.println(timestamp + " " + action + " " + expense);
     }
 

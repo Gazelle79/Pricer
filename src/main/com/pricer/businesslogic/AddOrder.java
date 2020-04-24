@@ -7,6 +7,7 @@ public class AddOrder extends Order implements Comparable<AddOrder>
 
     private char side = 'B';
     private double price = 0.0;
+    private char action = 'B';
 
     public char getSide()
     {
@@ -38,6 +39,11 @@ public class AddOrder extends Order implements Comparable<AddOrder>
         return super.orderSize;
     }
 
+    public char getAction()
+    {
+       return action;
+    }
+
 
 
     public AddOrder(int timeStamp, char orderType, String orderId, char side, double price, int orderSize)
@@ -48,9 +54,19 @@ public class AddOrder extends Order implements Comparable<AddOrder>
         super.orderSize = orderSize;
         this.side = side;
         this.price = price;
+
+        if( this.side == 'B')
+        {
+            this.action = 'S';
+        }
+        else
+        {
+            this.action = 'B';
+        }
+
     }
 
-    public void removeShares(int sharesToRemove)
+    public void reduceShares(int sharesToRemove)
     {
         if( sharesToRemove < this.getSize())
         {
