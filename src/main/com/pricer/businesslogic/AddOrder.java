@@ -68,7 +68,7 @@ public class AddOrder extends Order implements Comparable<AddOrder>
 
     public void reduceShares(int sharesToRemove)
     {
-        if( sharesToRemove < this.getSize())
+        if( sharesToRemove <= this.getSize())
         {
             super.orderSize -= sharesToRemove;
         }
