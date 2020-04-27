@@ -59,10 +59,12 @@ public class AddOrder extends Order implements Comparable<AddOrder>
         {
             this.action = 'S';
         }
-        else
+        else if(this.side == 'S')
         {
             this.action = 'B';
         }
+        else
+        { /* throw an exception. */  }
 
     }
 

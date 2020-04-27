@@ -55,7 +55,7 @@ public class PricerParser
                         AddOrder addOrder = this.CreateAddOrder(orderData);
                         orderMap.put(addOrder.getId(), addOrder);
 
-                        //Create a seperate Map for bids. Contains only order id & bid price.
+                        //Create a separate Map for bids. Contains only order id & bid price.
                         //Vector will sort this later to keep track of highest & lowest bids.
                         ///bidMap.put(addOrder.getId(), addOrder.getPrice());
 
@@ -195,7 +195,8 @@ public class PricerParser
                 ReduceOrder reduceOrder = (ReduceOrder)orderToCalculate;
                 String reduceOrderId = reduceOrder.getId();
                 AddOrder addOrderToReduce = null;
-                double incomeOrExpense = 0.0;
+                double income = 0.0;
+                double expense = 0.0;
 
                 if(orderMap.containsKey(reduceOrderId))
                 {
@@ -216,12 +217,14 @@ public class PricerParser
 
                         buyShareCount -= sharesToRemove;
                         remainingShares += sharesToRemove;
-                        incomeOrExpense = (buyOrderToReduce.getSize() * buyOrderToReduce.getPrice());
+                        expense = (buyOrderToReduce.getSize() * buyOrderToReduce.getPrice());
 
                         if(buyOrderToReduce.getSize() == 0)
                         {
                             buyBidList.remove(buyOrderToReduce);
                             orderMap.remove(reduceOrderId);
+
+                            this.WriteMarketData(addOrderToReduce.getTimeStamp(), addOrderToReduce.getAction(), expense);
                         }
                     }
                     else if(addOrderToReduce.getSide() == 'S')
@@ -235,12 +238,14 @@ public class PricerParser
 
                         sellShareCount -= sharesToRemove;
                         remainingShares += sharesToRemove;
-                        incomeOrExpense = (sellOrderToReduce.getSize() * sellOrderToReduce.getPrice());
+                        income = (sellOrderToReduce.getSize() * sellOrderToReduce.getPrice());
 
                         if(sellOrderToReduce.getSize() == 0)
                         {
-                            buyBidList.remove(sellOrderToReduce);
+                            sellBidList.remove(sellOrderToReduce);
                             orderMap.remove(reduceOrderId);
+
+                            this.WriteMarketData(addOrderToReduce.getTimeStamp(), addOrderToReduce.getAction(), income);
                         }
                     }
                     else
@@ -259,7 +264,9 @@ public class PricerParser
     //Write out Market data, where it's appropriate.
     public void WriteMarketData(int timestamp, char action, double expense)
     {
-        System.out.println(timestamp + " " + action + " " + expense);
+        String expenseString = (expense > 0.0 ? Double.toString(expense) :  "NA");
+
+        System.out.println(timestamp + " " + action + " " + expenseString);
     }
 
     /*Take a line of text. Convert it into an Order object by parsing data & putting that data into an
