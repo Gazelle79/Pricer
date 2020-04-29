@@ -50,14 +50,11 @@ public class PricerParser
                 String[] orderData = marketDataText.split(" ");
                 switch (orderData[1])
                 {
-                    case "A": {
+                    case "A":
+                    {
                         //Make an Add order.
                         AddOrder addOrder = this.CreateAddOrder(orderData);
                         orderMap.put(addOrder.getId(), addOrder);
-
-                        //Create a separate Map for bids. Contains only order id & bid price.
-                        //Vector will sort this later to keep track of highest & lowest bids.
-                        ///bidMap.put(addOrder.getId(), addOrder.getPrice());
 
                         if (addOrder.getSide() == 'B')
                         {
@@ -75,8 +72,6 @@ public class PricerParser
                     {
                         //Make an Reduce order.
                         ReduceOrder reduceOrder = this.CreateReduceOrder(orderData);
-                        //Do NOT add a Reduce order to the book! Doing so means that a unique string ID isn't unique
-                        // anymore, because an add and a reduce order both refer to it.
                         this.CalculateMarketData(reduceOrder);
                         break;
                     }
@@ -114,7 +109,7 @@ public class PricerParser
                    if (buyShareCount >= targetSize)
                    {
                        //Action = SELL: Sort ALL bids from highest to lowest.
-                       Collections.sort(buyBidList, new PriceCompare());
+                       Collections.sort(buyBidList, new SortSharePriceDescending());
 
                        int currentShareCount = 0;
                        double expense = 0.0;
@@ -139,7 +134,6 @@ public class PricerParser
                                currentShareCount += orderToBuy.getSize();
                                remainingShares = targetSize - currentShareCount;
                            }
-
                        }
                        this.WriteMarketData(insertedOrder.getTimeStamp(), insertedOrder.getAction(), expense);
                    }
@@ -150,7 +144,7 @@ public class PricerParser
                    if (sellShareCount >= targetSize)
                    {
                        //Action = BUY: Sort ALL bids from lowest to highest.
-                       Collections.sort(sellBidList, Collections.reverseOrder());
+                       Collections.sort(sellBidList, new SortSharePriceAscending());
 
                        int currentShareCount = 0;
                        double income = 0.0;
@@ -209,43 +203,39 @@ public class PricerParser
                     if(addOrderToReduce.getSide() == 'B')
                     {
                         AddOrder buyOrderToReduce = buyBidList.get(buyBidList.indexOf(addOrderToReduce));
-                        buyOrderToReduce.reduceShares(reduceOrder.getSize());
+                        expense = (buyOrderToReduce.getSize() * buyOrderToReduce.getPrice());
 
-                        //Share sizes have changed. Re-sort the list.
-                        //Action = SELL: Sort ALL bids from highest to lowest.
-                        Collections.sort(buyBidList, new PriceCompare());
+                        if( buyShareCount >= targetSize)
+                        { this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), expense); }
+
+                        buyOrderToReduce.reduceShares(reduceOrder.getSize());
 
                         buyShareCount -= sharesToRemove;
                         remainingShares += sharesToRemove;
-                        expense = (buyOrderToReduce.getSize() * buyOrderToReduce.getPrice());
 
                         if(buyOrderToReduce.getSize() == 0)
                         {
                             buyBidList.remove(buyOrderToReduce);
                             orderMap.remove(reduceOrderId);
-
-                            this.WriteMarketData(addOrderToReduce.getTimeStamp(), addOrderToReduce.getAction(), expense);
                         }
                     }
                     else if(addOrderToReduce.getSide() == 'S')
                     {
                         AddOrder sellOrderToReduce = sellBidList.get(sellBidList.indexOf(addOrderToReduce));
+                        income = (sellOrderToReduce.getSize() * sellOrderToReduce.getPrice());
+
+                        if( sellShareCount >= targetSize)
+                        { this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), income); }
+
                         sellOrderToReduce.reduceShares(reduceOrder.getSize());
-
-                        //Share sizes have changed. Re-sort the list.
-                        //Action = BUY: Sort ALL bids from lowest to highest.
-                        Collections.sort(sellBidList, Collections.reverseOrder());
-
                         sellShareCount -= sharesToRemove;
                         remainingShares += sharesToRemove;
-                        income = (sellOrderToReduce.getSize() * sellOrderToReduce.getPrice());
+
 
                         if(sellOrderToReduce.getSize() == 0)
                         {
                             sellBidList.remove(sellOrderToReduce);
                             orderMap.remove(reduceOrderId);
-
-                            this.WriteMarketData(addOrderToReduce.getTimeStamp(), addOrderToReduce.getAction(), income);
                         }
                     }
                     else
@@ -261,11 +251,21 @@ public class PricerParser
         }
     }
 
+
+    private void CalculateAddOrders()
+    {
+
+    }
+
+    private void CalculateReduceOrders()
+    {
+
+    }
+
     //Write out Market data, where it's appropriate.
     public void WriteMarketData(int timestamp, char action, double expense)
     {
-        String expenseString = (expense > 0.0 ? Double.toString(expense) :  "NA");
-
+        String expenseString = (expense >= targetSize ? Double.toString(expense) :  "NA");
         System.out.println(timestamp + " " + action + " " + expenseString);
     }
 
