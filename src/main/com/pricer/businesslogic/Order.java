@@ -1,8 +1,7 @@
 package main.com.pricer.businesslogic;
 
 
-public abstract class Order
-{
+public abstract class Order {
     //public enum orderType {ADD, REDUCE}
 
     protected int timeStamp = 0;

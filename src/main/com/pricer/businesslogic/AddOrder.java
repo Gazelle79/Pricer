@@ -1,9 +1,9 @@
 package main.com.pricer.businesslogic;
 //import java.util.Comparator;
 
-public class AddOrder extends Order implements Comparable<AddOrder>
+public class AddOrder extends Order
 {
-    //public enum sideType {BUY, SELL}
+    //public enum side {BUY, SELL}
 
     private char side = 'B';
     private double price = 0.0;
@@ -13,6 +13,7 @@ public class AddOrder extends Order implements Comparable<AddOrder>
     {
         return side;
     }
+
 
     public double getPrice()
     {
@@ -75,17 +76,6 @@ public class AddOrder extends Order implements Comparable<AddOrder>
             super.orderSize -= sharesToRemove;
         }
 
-    }
-
-
-    // override equals and hashCode
-    @Override
-    public int compareTo(AddOrder addOrder)
-    {
-        //return (this.price - addOrder.price);
-        if(this.price > addOrder.price) return -1;
-        if(this.price < addOrder.price) return 1;
-        else return 0;
     }
 
 
