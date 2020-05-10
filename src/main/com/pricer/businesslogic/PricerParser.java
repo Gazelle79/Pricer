@@ -10,12 +10,11 @@ import java.util.List;
 public class PricerParser
 {
     private HashMap<String, AddOrder> orderMap = null;
-    private List<AddOrder> askList = null; //A list to sort the orders in bidMap.
-    private List<AddOrder> bidList = null; //A list to sort the orders in bidMap.
 
     private final int targetSize = 200;
     private int remainingShares = targetSize;
-
+    ArrayList<AddOrder> askList = null;
+    ArrayList<AddOrder> bidList = null;
     private int bidShareCount = 0;
     private int askShareCount = 0;
 
@@ -23,8 +22,9 @@ public class PricerParser
     public PricerParser()
     {
         orderMap = new HashMap<>();
-        askList = new ArrayList();  //Sell = Ask
-        bidList = new ArrayList();  //Buy = Bid
+        askList = new ArrayList();  //A list to sort the orders in bidMap. //Sell = Ask
+        bidList = new ArrayList();  //A list to sort the orders in bidMap. //Buy = Bid
+
     }
 
     public String ReadMarketData(String inputFileNameAndPath) throws IOException
@@ -138,34 +138,8 @@ public class PricerParser
             bidShareCount += insertedOrder.getSize();
             if (bidShareCount >= targetSize)
             {
-                //Action = SELL: Sort ALL bids from highest to lowest.
-                bidList.sort(new SortSharePriceDescending());
-
-                int currentShareCount = 0;
-                double expense = 0.0;
-                AddOrder orderToBuy = null;
-
-                for(int i = 0; i < bidList.size(); i++)
-                {
-                    String thisId = bidList.get(i).getId();
-                    orderToBuy = orderMap.get(thisId);
-
-                    if((orderToBuy.getSize() + currentShareCount) >= targetSize)
-                    {
-                        int adjustedSharesToBuy = targetSize - currentShareCount;
-
-                        expense += (adjustedSharesToBuy * orderToBuy.getPrice());
-                        currentShareCount += adjustedSharesToBuy;
-                        remainingShares = (currentShareCount + orderToBuy.getSize()) - targetSize;
-                    }
-                    else
-                    {
-                        expense += (orderToBuy.getSize() * orderToBuy.getPrice());
-                        currentShareCount += orderToBuy.getSize();
-                        remainingShares = targetSize - currentShareCount;
-                    }
-                }
-                this.WriteMarketData(insertedOrder.getTimeStamp(), insertedOrder.getAction(), expense);
+                double income = this.CalculateIncome();
+                this.WriteMarketData(insertedOrder.getTimeStamp(), insertedOrder.getAction(), income);
             }
         }
         else if (insertedOrder.getSide() == 'S')
@@ -173,34 +147,8 @@ public class PricerParser
             askShareCount += insertedOrder.getSize();
             if (askShareCount >= targetSize)
             {
-                //Action = BUY: Sort ALL bids from lowest to highest.
-                askList.sort(new SortSharePriceAscending());
-
-                int currentShareCount = 0;
-                double income = 0.0;
-                AddOrder orderToSell = null;
-
-                for(int i = 0; i < askList.size(); i++)
-                {
-                    String thisId = askList.get(i).getId();
-                    orderToSell = orderMap.get(thisId);
-
-                    if((orderToSell.getSize() + currentShareCount) >= targetSize)
-                    {
-                        int adjustedShareSize = targetSize - currentShareCount;
-
-                        income += (adjustedShareSize * orderToSell.getPrice());
-                        remainingShares = (currentShareCount + orderToSell.getSize()) - targetSize;
-                        currentShareCount += adjustedShareSize;
-                    }
-                    else
-                    {
-                        income += (orderToSell.getSize() * orderToSell.getPrice());
-                        remainingShares = targetSize - currentShareCount;
-                        currentShareCount += orderToSell.getSize();
-                    }
-                }
-                this.WriteMarketData(insertedOrder.getTimeStamp(), insertedOrder.getAction(), income);
+                double expense = this.CalculateExpense();
+                this.WriteMarketData(insertedOrder.getTimeStamp(), insertedOrder.getAction(), expense);
             }
         }
         else{}
@@ -216,68 +164,125 @@ public class PricerParser
         if(orderMap.containsKey(reduceOrderId))
         {
             addOrderToReduce = orderMap.get(reduceOrderId);
+            int sharesToRemove = reduceOrder.getSize();
 
             //Remove shares from the Add order.
-            int sharesToRemove = reduceOrder.getSize();
-            //addOrderToReduce.reduceShares(sharesToRemove);
+            addOrderToReduce.ReduceShares(sharesToRemove);
 
             if(addOrderToReduce.getSide() == 'B')
             {
-                AddOrder buyOrderToReduce = bidList.get(bidList.indexOf(addOrderToReduce));
-                if(bidShareCount >= targetSize)
-                {
-                    expense = (buyOrderToReduce.getSize() * buyOrderToReduce.getPrice());
-                    this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), expense);
-                }
-
                 bidShareCount -= sharesToRemove;
-                remainingShares += sharesToRemove;
+                expense = this.CalculateExpense();
 
-                buyOrderToReduce.reduceShares(reduceOrder.getSize());
+                if(bidShareCount < targetSize)
+                { this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), 0.0); }
+                else if (bidShareCount >= targetSize)
+                { this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), expense); }
 
-                if(buyOrderToReduce.getSize() == 0)
+                if(addOrderToReduce.getSize() == 0)
                 {
-                    bidList.remove(buyOrderToReduce);
+                    bidList.remove(addOrderToReduce);
                     orderMap.remove(reduceOrderId);
                 }
             }
+
             else if(addOrderToReduce.getSide() == 'S')
             {
-                AddOrder sellOrderToReduce = askList.get(askList.indexOf(addOrderToReduce));
-                if(askShareCount >= targetSize)
-                {
-                    income = (sellOrderToReduce.getSize() * sellOrderToReduce.getPrice());
-                    this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), income);
-                }
-
                 askShareCount -= sharesToRemove;
-                remainingShares += sharesToRemove;
+                income = this.CalculateIncome();
 
-                sellOrderToReduce.reduceShares(sharesToRemove);
+                if(askShareCount < targetSize)
+                { this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), 0.0); }
+                else if (askShareCount >= targetSize)
+                { this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), income); }
 
-                if(sellOrderToReduce.getSize() == 0)
+                if(addOrderToReduce.getSize() == 0)
                 {
-                    askList.remove(sellOrderToReduce);
+                    askList.remove(addOrderToReduce);
                     orderMap.remove(reduceOrderId);
                 }
-
-
-
             }
             else
             {}
+
         }
     }
+
+
+    private double CalculateExpense()
+    {
+        //Type: BUY
+        //Action = SELL: Sort ALL bids from highest to lowest.
+        bidList.sort(new SortSharePriceDescending());
+
+        int currentShareCount = 0;
+        double expense = 0.0;
+
+        for(int i = 0; i < bidList.size(); i++)
+        {
+            String thisId = bidList.get(i).getId();
+            AddOrder orderToBuy = (AddOrder)orderMap.get(thisId);
+
+            if((orderToBuy.getSize() + currentShareCount) >= targetSize)
+            {
+                int adjustedSharesToBuy = targetSize - currentShareCount;
+                expense += (adjustedSharesToBuy * orderToBuy.getPrice());
+                remainingShares = (currentShareCount + orderToBuy.getSize()) - targetSize;
+                currentShareCount += adjustedSharesToBuy;
+            }
+            else
+            {
+                expense += (orderToBuy.getSize() * orderToBuy.getPrice());
+                remainingShares = targetSize - currentShareCount;
+                currentShareCount += orderToBuy.getSize();
+            }
+        }
+        return expense;
+    }
+
+    private double CalculateIncome()
+    {
+        //Type = SELL
+        //Action = BUY: Sort ALL bids from lowest to highest.
+        askList.sort(new SortSharePriceAscending());
+
+        int currentShareCount = 0;
+        double income = 0.0;
+
+        for(int i = 0; i < askList.size(); i++)
+        {
+            String thisId = askList.get(i).getId();
+            AddOrder orderToSell = (AddOrder)orderMap.get(thisId);
+
+            if((orderToSell.getSize() + currentShareCount) >= targetSize)
+            {
+                int adjustedShareSize = targetSize - currentShareCount;
+                income += (adjustedShareSize * orderToSell.getPrice());
+                //remainingShares = (currentShareCount + orderToSell.getSize()) - targetSize;
+                currentShareCount += adjustedShareSize;
+            }
+            else
+            {
+                income += (orderToSell.getSize() * orderToSell.getPrice());
+                //remainingShares = targetSize - currentShareCount;
+                currentShareCount += orderToSell.getSize();
+            }
+        }
+        return income;
+    }
+
 
     //Write out Market data, where it's appropriate.
     public void WriteMarketData(int timestamp, char action, double expense)
     {
         String expenseString = (expense > 0.0 ? Double.toString(expense) :  "NA");
-        System.out.println(timestamp + " " + action + " " + expenseString + "     Bid side: " + bidShareCount + " Ask side: " + askShareCount);
+        System.out.println(timestamp + " " + action + " " + expenseString);
     }
 
-    /*Take a line of text. Convert it into an Order object by parsing data & putting that data into an
-    * Order object. Put that Order object in a List.*/
+    /*
+    *Take a line of text. Convert it into an Order object by parsing data & putting that data into an
+    * Order object. Put that Order in a List.
+    * */
     private AddOrder CreateAddOrder(String[] marketDataText)
     {
         AddOrder newAddOrder = null;

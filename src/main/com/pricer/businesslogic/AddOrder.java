@@ -1,5 +1,7 @@
 package main.com.pricer.businesslogic;
-//import java.util.Comparator;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 
 public class AddOrder extends Order
 {
@@ -69,14 +71,8 @@ public class AddOrder extends Order
 
     }
 
-    public void reduceShares(int sharesToRemove)
+    public void ReduceShares(int sharesToRemove)
     {
-        if( sharesToRemove <= this.getSize())
-        {
-            super.orderSize -= sharesToRemove;
-        }
-
+        this.orderSize -= sharesToRemove;
     }
-
-
 }

@@ -11,6 +11,7 @@ public class ReduceOrder extends Order
     public int getSize() { return super.orderSize; }
 
 
+
     public ReduceOrder(int timeStamp, char orderType, String orderId, short orderSize)
     {
         super.timeStamp  = timeStamp;
