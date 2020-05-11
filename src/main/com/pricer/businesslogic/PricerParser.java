@@ -11,16 +11,18 @@ public class PricerParser
 {
     private HashMap<String, AddOrder> orderMap = null;
 
-    private final int targetSize = 200;
+    private int targetSize = 0;
     private int remainingShares = targetSize;
     ArrayList<AddOrder> askList = null;
     ArrayList<AddOrder> bidList = null;
     private int bidShareCount = 0;
     private int askShareCount = 0;
+    private double previousExpenditure = 0.0;
 
 
-    public PricerParser()
+    public PricerParser(int targetSize)
     {
+        this.targetSize = targetSize;
         orderMap = new HashMap<>();
         askList = new ArrayList();  //A list to sort the orders in bidMap. //Sell = Ask
         bidList = new ArrayList();  //A list to sort the orders in bidMap. //Buy = Bid
@@ -172,12 +174,17 @@ public class PricerParser
             if(addOrderToReduce.getSide() == 'B')
             {
                 bidShareCount -= sharesToRemove;
-                expense = this.CalculateExpense();
+                income = this.CalculateIncome();
 
-                if(bidShareCount < targetSize)
-                { this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), 0.0); }
+                if (bidShareCount < targetSize)
+                {
+                    //this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), 0.0);
+                    this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), income);
+                }
                 else if (bidShareCount >= targetSize)
-                { this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), expense); }
+                {
+                   this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), income);
+                }
 
                 if(addOrderToReduce.getSize() == 0)
                 {
@@ -189,12 +196,17 @@ public class PricerParser
             else if(addOrderToReduce.getSide() == 'S')
             {
                 askShareCount -= sharesToRemove;
-                income = this.CalculateIncome();
+                expense = this.CalculateExpense();
 
-                if(askShareCount < targetSize)
-                { this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), 0.0); }
+                 if(askShareCount < targetSize)
+                {
+                    //this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), 0.0);
+                    this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), expense);
+                }
                 else if (askShareCount >= targetSize)
-                { this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), income); }
+                {
+                    this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), expense);
+                }
 
                 if(addOrderToReduce.getSize() == 0)
                 {
@@ -208,20 +220,19 @@ public class PricerParser
         }
     }
 
-
     private double CalculateExpense()
     {
         //Type: BUY
-        //Action = SELL: Sort ALL bids from highest to lowest.
-        bidList.sort(new SortSharePriceDescending());
+        //Action = SELL: Sort ALL bids from lowest to highest.
+        askList.sort(new SortSharePriceAscending());
 
         int currentShareCount = 0;
         double expense = 0.0;
 
-        for(int i = 0; i < bidList.size(); i++)
+        for(int i = 0; i < askList.size(); i++)
         {
-            String thisId = bidList.get(i).getId();
-            AddOrder orderToBuy = (AddOrder)orderMap.get(thisId);
+            String thisId = askList.get(i).getId();
+            AddOrder orderToBuy = orderMap.get(thisId);
 
             if((orderToBuy.getSize() + currentShareCount) >= targetSize)
             {
@@ -237,46 +248,50 @@ public class PricerParser
                 currentShareCount += orderToBuy.getSize();
             }
         }
+        //previousExpenditure = expense;
         return expense;
     }
 
     private double CalculateIncome()
     {
         //Type = SELL
-        //Action = BUY: Sort ALL bids from lowest to highest.
-        askList.sort(new SortSharePriceAscending());
+        //Action = BUY: Sort ALL bids from highest to lowest.
+        bidList.sort(new SortSharePriceDescending());
 
         int currentShareCount = 0;
         double income = 0.0;
 
-        for(int i = 0; i < askList.size(); i++)
+        for(int i = 0; i < bidList.size(); i++)
         {
-            String thisId = askList.get(i).getId();
-            AddOrder orderToSell = (AddOrder)orderMap.get(thisId);
+            String thisId = bidList.get(i).getId();
+            AddOrder orderToSell = orderMap.get(thisId);
 
             if((orderToSell.getSize() + currentShareCount) >= targetSize)
             {
                 int adjustedShareSize = targetSize - currentShareCount;
                 income += (adjustedShareSize * orderToSell.getPrice());
-                //remainingShares = (currentShareCount + orderToSell.getSize()) - targetSize;
+                remainingShares = (currentShareCount + orderToSell.getSize()) - targetSize;
                 currentShareCount += adjustedShareSize;
             }
             else
             {
                 income += (orderToSell.getSize() * orderToSell.getPrice());
-                //remainingShares = targetSize - currentShareCount;
+                remainingShares = targetSize - currentShareCount;
                 currentShareCount += orderToSell.getSize();
             }
         }
+        //previousExpenditure = income;
         return income;
     }
 
 
     //Write out Market data, where it's appropriate.
-    public void WriteMarketData(int timestamp, char action, double expense)
+    public void WriteMarketData(int timestamp, char action, double expenditure)
     {
-        String expenseString = (expense > 0.0 ? Double.toString(expense) :  "NA");
-        System.out.println(timestamp + " " + action + " " + expenseString);
+        //String expenseString = (expenditure > 0.0 ? Double.toString(expenditure) :  "NA");
+        //System.out.println(timestamp + " " + action + " " + expenseString);
+        System.out.println(timestamp + " " + action + " " + expenditure);
+
     }
 
     /*

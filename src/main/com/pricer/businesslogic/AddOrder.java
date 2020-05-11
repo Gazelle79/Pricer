@@ -1,21 +1,28 @@
 package main.com.pricer.businesslogic;
-import java.util.ArrayList;
-import java.util.HashMap;
-
 
 public class AddOrder extends Order
 {
-    //public enum side {BUY, SELL}
+    public enum side
+    {
+        BUY('B'),
+        SELL('S');
 
-    private char side = 'B';
+        private char side;
+
+        side(char sideCode)
+        {
+            this.side = sideCode;
+        }
+    }
+
+    //private char side = 'B';
     private double price = 0.0;
     private char action = 'B';
 
-    public char getSide()
+    public side getSide()
     {
         return side;
     }
-
 
     public double getPrice()
     {
@@ -55,8 +62,12 @@ public class AddOrder extends Order
         super.orderType  = orderType;
         super.id = orderId;
         super.orderSize = orderSize;
-        this.side = side;
         this.price = price;
+
+        //Assign the 'side' char to an enumeration value here.
+        // I don't know how to do it.
+
+
 
         if( this.side == 'B')
         {

@@ -8,19 +8,19 @@ public class PricerMain {
     {
         String pricerDataInfo = "";
         String currentPath = new File("").getAbsolutePath();
+        int targetSize = 200;
 
         String inputFileNameAndPath =  currentPath + "/InputFiles/PricerInput.txt";
         //String inputFileNameAndPath =  currentPath + "/InputFiles/pricer.in";
-        String outputFileNameAndPath = currentPath + "/OutputFiles/PricerOutput.txt";
+        //String outputFileNameAndPath = currentPath + "/OutputFiles/PricerOutput.txt";
 
         if(args.length > 1)
         {
-            inputFileNameAndPath =  args[0];
-            outputFileNameAndPath = args[1];
+            targetSize = Integer.parseInt(args[0]);
         }
 
         //Get *all* market data. Read it in & display it.
-        PricerParser dataParser = new PricerParser();
+        PricerParser dataParser = new PricerParser(targetSize);
         try
         {
             pricerDataInfo = dataParser.ReadMarketData(inputFileNameAndPath);
