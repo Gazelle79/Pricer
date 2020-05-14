@@ -13,15 +13,38 @@ public class AddOrder extends Order
         {
             this.side = sideCode;
         }
+
+        public char sideValue()
+        {
+            return this.side;
+        }
     }
 
-    //private char side = 'B';
+    public enum action
+    {
+        BUY('B'),
+        SELL('S');
+
+        private char action;
+
+        action(char actionCode)
+        {
+            this.action = actionCode;
+        }
+
+        public char actionValue()
+        {
+            return this.action;
+        }
+    }
+
+    private side thisSide = side.BUY;
     private double price = 0.0;
-    private char action = 'B';
+    private action thisAction = action.BUY;
 
     public side getSide()
     {
-        return side;
+        return thisSide;
     }
 
     public double getPrice()
@@ -49,9 +72,9 @@ public class AddOrder extends Order
         return super.orderSize;
     }
 
-    public char getAction()
+    public action getAction()
     {
-       return action;
+       return thisAction;
     }
 
 
@@ -64,21 +87,27 @@ public class AddOrder extends Order
         super.orderSize = orderSize;
         this.price = price;
 
-        //Assign the 'side' char to an enumeration value here.
-        // I don't know how to do it.
-
-
-
-        if( this.side == 'B')
+        switch (side)
         {
-            this.action = 'S';
+            case 'B':
+            {
+                thisSide = AddOrder.side.BUY;
+                thisAction = AddOrder.action.SELL;
+                break;
+            }
+            case 'S':
+            {
+                this.thisSide = AddOrder.side.SELL;
+                thisAction = AddOrder.action.BUY;
+                break;
+            }
+            default:
+            {
+                /* TODO: throw an exception. */
+                break;
+            }
         }
-        else if(this.side == 'S')
-        {
-            this.action = 'B';
-        }
-        else
-        { /* TODO: throw an exception. */  }
+
 
     }
 

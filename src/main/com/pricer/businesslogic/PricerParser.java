@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.*;
 import java.util.HashMap;
 import java.util.ArrayList;
-import java.util.List;
+import main.com.pricer.businesslogic.AddOrder.*;
 
 
 public class PricerParser
@@ -59,11 +59,11 @@ public class PricerParser
                         {
                             orderMap.put(addOrder.getId(), addOrder);
 
-                            if (addOrder.getSide() == 'B')
+                            if (addOrder.getSide() == side.BUY)
                             {
                                 bidList.add(addOrder);
                             }
-                            else if (addOrder.getSide() == 'S')
+                            else if (addOrder.getSide() == side.SELL)
                             {
                                 askList.add(addOrder);
                             }
@@ -135,22 +135,22 @@ public class PricerParser
 
     private void CalculateAddOrders(AddOrder insertedOrder)
     {
-        if (insertedOrder.getSide() == 'B')
+        if (insertedOrder.getSide() == side.BUY)
         {
             bidShareCount += insertedOrder.getSize();
             if (bidShareCount >= targetSize)
             {
                 double income = this.CalculateIncome();
-                this.WriteMarketData(insertedOrder.getTimeStamp(), insertedOrder.getAction(), income);
+                this.WriteMarketData(insertedOrder.getTimeStamp(), insertedOrder.getAction().actionValue(), income);
             }
         }
-        else if (insertedOrder.getSide() == 'S')
+        else if (insertedOrder.getSide() == side.SELL)
         {
             askShareCount += insertedOrder.getSize();
             if (askShareCount >= targetSize)
             {
                 double expense = this.CalculateExpense();
-                this.WriteMarketData(insertedOrder.getTimeStamp(), insertedOrder.getAction(), expense);
+                this.WriteMarketData(insertedOrder.getTimeStamp(), insertedOrder.getAction().actionValue(), expense);
             }
         }
         else{}
@@ -171,7 +171,7 @@ public class PricerParser
             //Remove shares from the Add order.
             addOrderToReduce.ReduceShares(sharesToRemove);
 
-            if(addOrderToReduce.getSide() == 'B')
+            if(addOrderToReduce.getSide() == side.BUY)
             {
                 bidShareCount -= sharesToRemove;
                 income = this.CalculateIncome();
@@ -179,11 +179,11 @@ public class PricerParser
                 if (bidShareCount < targetSize)
                 {
                     //this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), 0.0);
-                    this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), income);
+                    this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), income);
                 }
                 else if (bidShareCount >= targetSize)
                 {
-                   this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), income);
+                   this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), income);
                 }
 
                 if(addOrderToReduce.getSize() == 0)
@@ -193,7 +193,7 @@ public class PricerParser
                 }
             }
 
-            else if(addOrderToReduce.getSide() == 'S')
+            else if(addOrderToReduce.getSide() == side.SELL)
             {
                 askShareCount -= sharesToRemove;
                 expense = this.CalculateExpense();
@@ -201,11 +201,11 @@ public class PricerParser
                  if(askShareCount < targetSize)
                 {
                     //this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), 0.0);
-                    this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), expense);
+                    this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), expense);
                 }
                 else if (askShareCount >= targetSize)
                 {
-                    this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), expense);
+                    this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), expense);
                 }
 
                 if(addOrderToReduce.getSize() == 0)
@@ -286,11 +286,11 @@ public class PricerParser
 
 
     //Write out Market data, where it's appropriate.
-    public void WriteMarketData(int timestamp, char action, double expenditure)
+    public void WriteMarketData(int timestamp, char orderAction, double expenditure)
     {
         //String expenseString = (expenditure > 0.0 ? Double.toString(expenditure) :  "NA");
         //System.out.println(timestamp + " " + action + " " + expenseString);
-        System.out.println(timestamp + " " + action + " " + expenditure);
+        System.out.println(timestamp + " " + orderAction + " " + expenditure);
 
     }
 
