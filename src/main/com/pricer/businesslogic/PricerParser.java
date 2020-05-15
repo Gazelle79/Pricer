@@ -4,10 +4,10 @@ import java.io.BufferedReader;
 import java.io.*;
 import java.util.HashMap;
 import java.util.ArrayList;
-import main.com.pricer.businesslogic.AddOrder.*;
+import main.com.pricer.interfaces.*;
 
 
-public class PricerParser
+public class PricerParser implements ISide, IOrderType, IAction
 {
     private HashMap<String, AddOrder> orderMap = null;
 
@@ -70,9 +70,8 @@ public class PricerParser
                             this.CalculateMarketData(addOrder);
                         }
                         break;
-
-
                     }
+
                     case "R":
                     {
                         //Make an Reduce order.
@@ -108,7 +107,7 @@ public class PricerParser
              * order. When share count exceeds the target_size, print the share amount and the
              * dollar total as output.
              * */
-            case 'A':
+            case ADD:
             {
                this.CalculateAddOrders((AddOrder)orderToCalculate);
                 break;
@@ -120,7 +119,7 @@ public class PricerParser
              * When this order's shares are reduced to zero, remove that order from the book.
              * Reduce Total Share count and total dollar amount accordingly.
              * */
-            case 'R':
+            case REDUCE:
             {
                 this.CalculateReduceOrders((ReduceOrder)orderToCalculate);
                 break;
@@ -311,7 +310,17 @@ public class PricerParser
             double price = Double.parseDouble(marketDataText[4]);
             short orderSize = Short.parseShort(marketDataText[5]);
 
-            newAddOrder = new AddOrder(timeStamp, orderType, orderId, side, price, orderSize);
+            IOrderType.orderType addOrderType = null;
+
+            if (orderType == 'A')
+            { addOrderType = IOrderType.orderType.ADD; }
+            else
+            {
+                /*TODO: Throw an error.*/
+            }
+
+
+            newAddOrder = new AddOrder(timeStamp, addOrderType, orderId, side, price, orderSize);
         }
 
         catch(Exception e)
@@ -332,7 +341,16 @@ public class PricerParser
             String orderId = marketDataText[2];
             short orderSize = Short.parseShort(marketDataText[3]);
 
-            newReduceOrder = new ReduceOrder(timeStamp, orderType, orderId, orderSize);
+            IOrderType.orderType reduceOrderType = null;
+
+            if (orderType == 'R')
+            { reduceOrderType = IOrderType.orderType.REDUCE; }
+            else
+            {
+                /*TODO: Throw an error.*/
+            }
+
+            newReduceOrder = new ReduceOrder(timeStamp, reduceOrderType, orderId, orderSize);
         }
 
         catch(Exception e)

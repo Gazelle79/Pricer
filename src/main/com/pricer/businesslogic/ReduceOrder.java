@@ -6,16 +6,16 @@ public class ReduceOrder extends Order
     {
         return super.timeStamp;
     }
-    public char getOrderType() { return super.orderType; }
+    public orderType getOrderType() { return super.orderType; }
     public String getId() { return super.id; }
     public int getSize() { return super.orderSize; }
 
 
 
-    public ReduceOrder(int timeStamp, char orderType, String orderId, short orderSize)
+    public ReduceOrder(int timeStamp, orderType reduceOrderType, String orderId, short orderSize)
     {
         super.timeStamp  = timeStamp;
-        super.orderType = orderType;
+        super.orderType = reduceOrderType;
         super.id = orderId;
         super.orderSize = orderSize;
     }

@@ -1,46 +1,13 @@
 package main.com.pricer.businesslogic;
 
-public class AddOrder extends Order
+import main.com.pricer.interfaces.*;
+
+public class AddOrder extends Order implements IOrderType, ISide, IAction
 {
-    public enum side
-    {
-        BUY('B'),
-        SELL('S');
-
-        private char side;
-
-        side(char sideCode)
-        {
-            this.side = sideCode;
-        }
-
-        public char sideValue()
-        {
-            return this.side;
-        }
-    }
-
-    public enum action
-    {
-        BUY('B'),
-        SELL('S');
-
-        private char action;
-
-        action(char actionCode)
-        {
-            this.action = actionCode;
-        }
-
-        public char actionValue()
-        {
-            return this.action;
-        }
-    }
-
     private side thisSide = side.BUY;
     private double price = 0.0;
     private action thisAction = action.BUY;
+    private orderType thisOrderType = orderType;
 
     public side getSide()
     {
@@ -57,9 +24,9 @@ public class AddOrder extends Order
         return super.timeStamp;
     }
 
-    public char getOrderType()
+    public orderType getOrderType()
     {
-        return super.orderType;
+        return thisOrderType;
     }
 
     public String getId()
@@ -79,26 +46,26 @@ public class AddOrder extends Order
 
 
 
-    public AddOrder(int timeStamp, char orderType, String orderId, char side, double price, int orderSize)
+    public AddOrder(int timeStamp, orderType addOrderType, String orderId, char side, double price, int orderSize)
     {
         super.timeStamp = timeStamp;
-        super.orderType  = orderType;
         super.id = orderId;
         super.orderSize = orderSize;
         this.price = price;
+        super.orderType = addOrderType;
 
         switch (side)
         {
             case 'B':
             {
-                thisSide = AddOrder.side.BUY;
-                thisAction = AddOrder.action.SELL;
+                thisSide = ISide.side.BUY;
+                thisAction = IAction.action.SELL;
                 break;
             }
             case 'S':
             {
-                this.thisSide = AddOrder.side.SELL;
-                thisAction = AddOrder.action.BUY;
+                thisSide = ISide.side.SELL;
+                thisAction = IAction.action.BUY;
                 break;
             }
             default:
@@ -107,7 +74,6 @@ public class AddOrder extends Order
                 break;
             }
         }
-
 
     }
 
