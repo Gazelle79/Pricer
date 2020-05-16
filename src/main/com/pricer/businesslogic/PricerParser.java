@@ -17,15 +17,14 @@ public class PricerParser implements ISide, IOrderType, IAction
     ArrayList<AddOrder> bidList = null;
     private int bidShareCount = 0;
     private int askShareCount = 0;
-    private double previousExpenditure = 0.0;
 
 
     public PricerParser(int targetSize)
     {
         this.targetSize = targetSize;
-        orderMap = new HashMap<>();
-        askList = new ArrayList();  //A list to sort the orders in bidMap. //Sell = Ask
-        bidList = new ArrayList();  //A list to sort the orders in bidMap. //Buy = Bid
+        orderMap = new HashMap<>();  //Contains all ADD orders read in from the data file. Does not contain Reduce orders.
+        askList = new ArrayList();  //Contains all SELL orders in OrderMap.
+        bidList = new ArrayList();  //Contains all BUY orders in OrderMap.
 
     }
 
@@ -173,16 +172,15 @@ public class PricerParser implements ISide, IOrderType, IAction
             if(addOrderToReduce.getSide() == side.BUY)
             {
                 bidShareCount -= sharesToRemove;
-                income = this.CalculateIncome();
+                expense = this.CalculateExpense();
 
                 if (bidShareCount < targetSize)
                 {
-                    //this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), 0.0);
-                    this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), income);
+                    this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), 0.0);
                 }
                 else if (bidShareCount >= targetSize)
                 {
-                   this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), income);
+                   this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), expense);
                 }
 
                 if(addOrderToReduce.getSize() == 0)
@@ -195,16 +193,15 @@ public class PricerParser implements ISide, IOrderType, IAction
             else if(addOrderToReduce.getSide() == side.SELL)
             {
                 askShareCount -= sharesToRemove;
-                expense = this.CalculateExpense();
+                income = this.CalculateIncome();
 
                  if(askShareCount < targetSize)
                 {
-                    //this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction(), 0.0);
-                    this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), expense);
+                    this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), 0.0);
                 }
                 else if (askShareCount >= targetSize)
                 {
-                    this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), expense);
+                    this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), income);
                 }
 
                 if(addOrderToReduce.getSize() == 0)
@@ -221,8 +218,7 @@ public class PricerParser implements ISide, IOrderType, IAction
 
     private double CalculateExpense()
     {
-        //Type: BUY
-        //Action = SELL: Sort ALL bids from lowest to highest.
+        //Sort ALL bids from lowest to highest.
         askList.sort(new SortSharePriceAscending());
 
         int currentShareCount = 0;
@@ -253,8 +249,7 @@ public class PricerParser implements ISide, IOrderType, IAction
 
     private double CalculateIncome()
     {
-        //Type = SELL
-        //Action = BUY: Sort ALL bids from highest to lowest.
+        //Sort ALL bids from highest to lowest.
         bidList.sort(new SortSharePriceDescending());
 
         int currentShareCount = 0;
@@ -279,7 +274,7 @@ public class PricerParser implements ISide, IOrderType, IAction
                 currentShareCount += orderToSell.getSize();
             }
         }
-        //previousExpenditure = income;
+
         return income;
     }
 
@@ -287,16 +282,11 @@ public class PricerParser implements ISide, IOrderType, IAction
     //Write out Market data, where it's appropriate.
     public void WriteMarketData(int timestamp, char orderAction, double expenditure)
     {
-        //String expenseString = (expenditure > 0.0 ? Double.toString(expenditure) :  "NA");
-        //System.out.println(timestamp + " " + action + " " + expenseString);
-        System.out.println(timestamp + " " + orderAction + " " + expenditure);
-
+        String expenseString = (expenditure > 0.0 ? Double.toString(expenditure) :  "NA");
+        System.out.println(timestamp + " " + orderAction + " " + expenseString);
     }
 
-    /*
-    *Take a line of text. Convert it into an Order object by parsing data & putting that data into an
-    * Order object. Put that Order in a List.
-    * */
+
     private AddOrder CreateAddOrder(String[] marketDataText)
     {
         AddOrder newAddOrder = null;
@@ -304,23 +294,13 @@ public class PricerParser implements ISide, IOrderType, IAction
         try
         {
             int timeStamp = Integer.parseInt(marketDataText[0]);
-            char orderType = Character.toUpperCase(marketDataText[1].charAt(0));
+            //char orderType = Character.toUpperCase(marketDataText[1].charAt(0));
             String orderId = marketDataText[2];
             char side = Character.toUpperCase(marketDataText[3].charAt(0));
             double price = Double.parseDouble(marketDataText[4]);
             short orderSize = Short.parseShort(marketDataText[5]);
 
-            IOrderType.orderType addOrderType = null;
-
-            if (orderType == 'A')
-            { addOrderType = IOrderType.orderType.ADD; }
-            else
-            {
-                /*TODO: Throw an error.*/
-            }
-
-
-            newAddOrder = new AddOrder(timeStamp, addOrderType, orderId, side, price, orderSize);
+            newAddOrder = new AddOrder(timeStamp, IOrderType.orderType.ADD, orderId, side, price, orderSize);
         }
 
         catch(Exception e)
@@ -337,20 +317,11 @@ public class PricerParser implements ISide, IOrderType, IAction
         try
         {
             int timeStamp = Integer.parseInt(marketDataText[0]);
-            char orderType = marketDataText[1].charAt(0);
+            //char orderType = marketDataText[1].charAt(0);
             String orderId = marketDataText[2];
             short orderSize = Short.parseShort(marketDataText[3]);
 
-            IOrderType.orderType reduceOrderType = null;
-
-            if (orderType == 'R')
-            { reduceOrderType = IOrderType.orderType.REDUCE; }
-            else
-            {
-                /*TODO: Throw an error.*/
-            }
-
-            newReduceOrder = new ReduceOrder(timeStamp, reduceOrderType, orderId, orderSize);
+            newReduceOrder = new ReduceOrder(timeStamp, IOrderType.orderType.REDUCE, orderId, orderSize);
         }
 
         catch(Exception e)
