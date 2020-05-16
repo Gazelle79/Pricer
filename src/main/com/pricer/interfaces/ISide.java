@@ -2,7 +2,7 @@ package main.com.pricer.interfaces;
 
 public interface ISide {
 
-    public enum side implements ISide {
+    enum side implements ISide {
         BUY('B'),
         SELL('S');
 
