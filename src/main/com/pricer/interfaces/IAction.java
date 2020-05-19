@@ -2,7 +2,8 @@ package main.com.pricer.interfaces;
 
 public interface IAction
 {
-    enum action implements IAction {
+    enum action implements IAction
+    {
         BUY('B'),
         SELL('S');
 

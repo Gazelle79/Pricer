@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import main.com.pricer.interfaces.*;
 
 
-public class PricerParser implements ISide, IOrderType, IAction
+public class OrderBook implements ISide, IOrderType, IAction
 {
     private HashMap<String, AddOrder> orderMap = null;
 
@@ -19,7 +19,7 @@ public class PricerParser implements ISide, IOrderType, IAction
     private int askShareCount = 0;
 
 
-    public PricerParser(int targetSize)
+    public OrderBook(int targetSize)
     {
         this.targetSize = targetSize;
         orderMap = new HashMap<>();  //Contains all ADD orders read in from the data file. Does not contain Reduce orders.
@@ -89,7 +89,6 @@ public class PricerParser implements ISide, IOrderType, IAction
                     }
                 }
                 inputDataString.append(marketDataText + "\n");
-
         }
         reader.close();
         return inputDataString.toString();
@@ -169,45 +168,39 @@ public class PricerParser implements ISide, IOrderType, IAction
             //Remove shares from the Add order.
             addOrderToReduce.ReduceShares(sharesToRemove);
 
+            //Remove shares from the buy share count.
             if(addOrderToReduce.getSide() == side.BUY)
             {
                 bidShareCount -= sharesToRemove;
-                expense = this.CalculateExpense();
-
-                if (bidShareCount < targetSize)
-                {
-                    this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), 0.0);
-                }
-                else if (bidShareCount >= targetSize)
-                {
-                   this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), expense);
-                }
 
                 if(addOrderToReduce.getSize() == 0)
                 {
                     bidList.remove(addOrderToReduce);
                     orderMap.remove(reduceOrderId);
                 }
+
+                if (bidShareCount >= targetSize)
+                {
+                    income = this.CalculateIncome();
+                    this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), income);
+                }
+
             }
 
             else if(addOrderToReduce.getSide() == side.SELL)
             {
                 askShareCount -= sharesToRemove;
-                income = this.CalculateIncome();
-
-                 if(askShareCount < targetSize)
-                {
-                    this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), 0.0);
-                }
-                else if (askShareCount >= targetSize)
-                {
-                    this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), income);
-                }
 
                 if(addOrderToReduce.getSize() == 0)
                 {
                     askList.remove(addOrderToReduce);
                     orderMap.remove(reduceOrderId);
+                }
+
+                if (askShareCount >= targetSize)
+                {
+                    expense = this.CalculateExpense();
+                    this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), expense);
                 }
             }
             else
@@ -243,7 +236,6 @@ public class PricerParser implements ISide, IOrderType, IAction
                 currentShareCount += orderToBuy.getSize();
             }
         }
-        //previousExpenditure = expense;
         return expense;
     }
 
@@ -274,7 +266,6 @@ public class PricerParser implements ISide, IOrderType, IAction
                 currentShareCount += orderToSell.getSize();
             }
         }
-
         return income;
     }
 

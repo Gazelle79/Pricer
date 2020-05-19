@@ -4,10 +4,12 @@ import main.com.pricer.interfaces.*;
 
 public class AddOrder extends Order implements IOrderType, ISide, IAction
 {
-    private side thisSide = side.BUY;
+    //declarations & initial values.
+    private side thisSide = null;
     private double price = 0.0;
-    private action thisAction = action.BUY;
+    private action thisAction = null;
     private orderType thisOrderType = orderType;
+
 
     public side getSide()
     {

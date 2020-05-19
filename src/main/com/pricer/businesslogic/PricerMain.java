@@ -20,7 +20,7 @@ public class PricerMain {
         }
 
         //Get *all* market data. Read it in & display it.
-        PricerParser dataParser = new PricerParser(targetSize);
+        OrderBook dataParser = new OrderBook(targetSize);
         try
         {
             pricerDataInfo = dataParser.ReadMarketData(inputFileNameAndPath);
