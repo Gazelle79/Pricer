@@ -17,6 +17,8 @@ public class OrderBook implements ISide, IOrderType, IAction
     ArrayList<AddOrder> bidList = null;
     private int bidShareCount = 0;
     private int askShareCount = 0;
+    private double previousIncome = 0.0;
+    private double previousExpense = 0.0;
 
 
     public OrderBook(int targetSize)
@@ -135,6 +137,7 @@ public class OrderBook implements ISide, IOrderType, IAction
         if (insertedOrder.getSide() == side.BUY)
         {
             bidShareCount += insertedOrder.getSize();
+
             if (bidShareCount >= targetSize)
             {
                 double income = this.CalculateIncome();
@@ -144,6 +147,7 @@ public class OrderBook implements ISide, IOrderType, IAction
         else if (insertedOrder.getSide() == side.SELL)
         {
             askShareCount += insertedOrder.getSize();
+
             if (askShareCount >= targetSize)
             {
                 double expense = this.CalculateExpense();
@@ -179,12 +183,23 @@ public class OrderBook implements ISide, IOrderType, IAction
                     orderMap.remove(reduceOrderId);
                 }
 
+                income = this.CalculateIncome();
                 if (bidShareCount >= targetSize)
                 {
-                    income = this.CalculateIncome();
+                    previousIncome = income;
                     this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), income);
                 }
-
+                else if(bidShareCount < targetSize)
+                {
+                    if(previousIncome != income)
+                    {
+                        this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), 0.0);
+                    }
+                    else
+                    {
+                        //do nothing
+                    }
+                }
             }
 
             else if(addOrderToReduce.getSide() == side.SELL)
@@ -197,10 +212,22 @@ public class OrderBook implements ISide, IOrderType, IAction
                     orderMap.remove(reduceOrderId);
                 }
 
+                expense = this.CalculateExpense();
                 if (askShareCount >= targetSize)
                 {
-                    expense = this.CalculateExpense();
+                    previousExpense = expense;
                     this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), expense);
+                }
+                else if(askShareCount < targetSize)
+                {
+                    if(previousExpense != expense)
+                    {
+                        this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), 0.0);
+                    }
+                    else
+                    {
+                        //do nothing
+                    }
                 }
             }
             else
@@ -269,14 +296,12 @@ public class OrderBook implements ISide, IOrderType, IAction
         return income;
     }
 
-
     //Write out Market data, where it's appropriate.
     public void WriteMarketData(int timestamp, char orderAction, double expenditure)
     {
         String expenseString = (expenditure > 0.0 ? Double.toString(expenditure) :  "NA");
         System.out.println(timestamp + " " + orderAction + " " + expenseString);
     }
-
 
     private AddOrder CreateAddOrder(String[] marketDataText)
     {
