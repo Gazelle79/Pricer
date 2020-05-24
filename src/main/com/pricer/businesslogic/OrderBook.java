@@ -184,6 +184,7 @@ public class OrderBook implements ISide, IOrderType, IAction
                 }
 
                 income = this.CalculateIncome();
+
                 if (bidShareCount >= targetSize)
                 {
                     previousIncome = income;
@@ -193,6 +194,7 @@ public class OrderBook implements ISide, IOrderType, IAction
                 {
                     if(previousIncome != income)
                     {
+                        previousIncome = income;
                         this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), 0.0);
                     }
                     else
@@ -213,18 +215,19 @@ public class OrderBook implements ISide, IOrderType, IAction
                 }
 
                 expense = this.CalculateExpense();
+
                 if (askShareCount >= targetSize)
                 {
-                    previousExpense = expense;
                     this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), expense);
                 }
                 else if(askShareCount < targetSize)
                 {
-                    if(previousExpense != expense)
+                    if(previousExpense != expense) //The price changed to NA because less than 200 shares are available.
                     {
+                        previousExpense = expense;
                         this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), 0.0);
                     }
-                    else
+                    else //The price didn't change from whatever it was previously.
                     {
                         //do nothing
                     }
