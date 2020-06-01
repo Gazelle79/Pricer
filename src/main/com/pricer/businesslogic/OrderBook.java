@@ -20,14 +20,12 @@ public class OrderBook implements ISide, IOrderType, IAction
     private double previousIncome = 0.0;
     private double previousExpense = 0.0;
 
-
     public OrderBook(int targetSize)
     {
         this.targetSize = targetSize;
         orderMap = new HashMap<>();  //Contains all ADD orders read in from the data file. Does not contain Reduce orders.
         askList = new ArrayList();  //Contains all SELL orders in OrderMap.
         bidList = new ArrayList();  //Contains all BUY orders in OrderMap.
-
     }
 
     public String ReadMarketData(String inputFileNameAndPath) throws IOException
@@ -222,6 +220,12 @@ public class OrderBook implements ISide, IOrderType, IAction
                 }
                 else if(askShareCount < targetSize)
                 {
+                    /*three cases:
+                     *  Price changed & is greater than 0 / NA
+                     *  Price changed & is equal to 0 / N/A
+                     *  Price didn't change / equal to whatever it was last time.
+                     * */
+
                     if(previousExpense != expense) //The price changed to NA because less than 200 shares are available.
                     {
                         previousExpense = expense;
