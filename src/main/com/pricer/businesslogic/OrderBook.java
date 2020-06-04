@@ -19,6 +19,8 @@ public class OrderBook implements ISide, IOrderType, IAction
     private int askShareCount = 0;
     private double previousIncome = 0.0;
     private double previousExpense = 0.0;
+    private double income = 0.0;
+    private double expense = 0.0;
 
     public OrderBook(int targetSize)
     {
@@ -94,29 +96,16 @@ public class OrderBook implements ISide, IOrderType, IAction
         return inputDataString.toString();
     }
 
-
     public void CalculateMarketData(Order orderToCalculate)
     {
         switch (orderToCalculate.orderType)
         {
-            /*
-             * ADD ORDER:
-             * Keep a running tab of the dollar totals & share count totals for Buy (b) and Sell (s) for each
-             * order. When share count exceeds the target_size, print the share amount and the
-             * dollar total as output.
-             * */
             case ADD:
             {
                this.CalculateAddOrders((AddOrder)orderToCalculate);
                 break;
             }
 
-            /* REDUCE ORDER:
-             * Match this order to one that's in the list. Reduce the number of overall buy / sell shares accordingly.
-             * Reduce number of shares from the order that this reduce order is pointing to.
-             * When this order's shares are reduced to zero, remove that order from the book.
-             * Reduce Total Share count and total dollar amount accordingly.
-             * */
             case REDUCE:
             {
                 this.CalculateReduceOrders((ReduceOrder)orderToCalculate);
@@ -129,7 +118,6 @@ public class OrderBook implements ISide, IOrderType, IAction
         }
     }
 
-
     private void CalculateAddOrders(AddOrder insertedOrder)
     {
         if (insertedOrder.getSide() == side.BUY)
@@ -140,6 +128,7 @@ public class OrderBook implements ISide, IOrderType, IAction
             {
                 double income = this.CalculateIncome();
                 this.WriteMarketData(insertedOrder.getTimeStamp(), insertedOrder.getAction().actionValue(), income);
+                previousIncome = income;
             }
         }
         else if (insertedOrder.getSide() == side.SELL)
@@ -150,6 +139,7 @@ public class OrderBook implements ISide, IOrderType, IAction
             {
                 double expense = this.CalculateExpense();
                 this.WriteMarketData(insertedOrder.getTimeStamp(), insertedOrder.getAction().actionValue(), expense);
+                previousExpense = expense;
             }
         }
         else{}
@@ -159,8 +149,8 @@ public class OrderBook implements ISide, IOrderType, IAction
     {
         String reduceOrderId = reduceOrder.getId();
         AddOrder addOrderToReduce = null;
-        double income = 0.0;
-        double expense = 0.0;
+        //double income = 0.0;
+        //double expense = 0.0;
 
         if(orderMap.containsKey(reduceOrderId))
         {
@@ -180,24 +170,28 @@ public class OrderBook implements ISide, IOrderType, IAction
                     bidList.remove(addOrderToReduce);
                     orderMap.remove(reduceOrderId);
                 }
+                //income = this.CalculateIncome();
 
-                income = this.CalculateIncome();
-
-                if (bidShareCount >= targetSize)
+                //TODO: Rethink Reduce orders: Buy.
+                if(bidShareCount >= targetSize) //bid shares >= targetSize
                 {
-                    previousIncome = income;
+                    //print the price
+                    income = this.CalculateIncome();
                     this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), income);
+                    previousIncome = income;
                 }
-                else if(bidShareCount < targetSize)
+                else
                 {
-                    if(previousIncome != income)
+                    income = 0.0;
+                    if (previousIncome != income) //the price changed
                     {
-                        previousIncome = income;
+                        //print NA, because less than targetSize shares
                         this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), 0.0);
+                        previousIncome = 0.0;
                     }
-                    else
+                    else //price didn't change
                     {
-                        //do nothing
+                        //blank (do nothing, print nothing)
                     }
                 }
             }
@@ -211,29 +205,28 @@ public class OrderBook implements ISide, IOrderType, IAction
                     askList.remove(addOrderToReduce);
                     orderMap.remove(reduceOrderId);
                 }
+                //expense = this.CalculateExpense();
 
-                expense = this.CalculateExpense();
-
-                if (askShareCount >= targetSize)
+                //TODO: Rethink Reduce orders: Sell.
+                if(askShareCount >= targetSize) //bid shares >= targetSize
                 {
+                    //print the price
+                    expense = this.CalculateExpense();
                     this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), expense);
+                    previousExpense = expense;
                 }
-                else if(askShareCount < targetSize)
+                else
                 {
-                    /*three cases:
-                     *  Price changed & is greater than 0 / NA
-                     *  Price changed & is equal to 0 / N/A
-                     *  Price didn't change / equal to whatever it was last time.
-                     * */
-
-                    if(previousExpense != expense) //The price changed to NA because less than 200 shares are available.
+                    expense = 0.0;
+                    if (previousExpense != expense) //the price changed
                     {
-                        previousExpense = expense;
+                        //print NA, because less than targetSize shares
                         this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), 0.0);
+                        previousExpense = 0.0;
                     }
-                    else //The price didn't change from whatever it was previously.
+                    else //price didn't change
                     {
-                        //do nothing
+                        //blank (do nothing, print nothing)
                     }
                 }
             }
