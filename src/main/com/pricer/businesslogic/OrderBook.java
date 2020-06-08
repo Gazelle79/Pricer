@@ -12,7 +12,6 @@ public class OrderBook implements ISide, IOrderType, IAction
     private HashMap<String, AddOrder> orderMap = null;
 
     private int targetSize = 0;
-    private int remainingShares = targetSize;
     ArrayList<AddOrder> askList = null;
     ArrayList<AddOrder> bidList = null;
     private int bidShareCount = 0;
@@ -21,6 +20,7 @@ public class OrderBook implements ISide, IOrderType, IAction
     private double previousExpense = 0.0;
     private double income = 0.0;
     private double expense = 0.0;
+    private StringBuilder stringToReturn = null;
 
     public OrderBook(int targetSize)
     {
@@ -28,6 +28,7 @@ public class OrderBook implements ISide, IOrderType, IAction
         orderMap = new HashMap<>();  //Contains all ADD orders read in from the data file. Does not contain Reduce orders.
         askList = new ArrayList();  //Contains all SELL orders in OrderMap.
         bidList = new ArrayList();  //Contains all BUY orders in OrderMap.
+        stringToReturn = new StringBuilder();
     }
 
     public String ReadMarketData(String inputFileNameAndPath) throws IOException
@@ -149,8 +150,6 @@ public class OrderBook implements ISide, IOrderType, IAction
     {
         String reduceOrderId = reduceOrder.getId();
         AddOrder addOrderToReduce = null;
-        //double income = 0.0;
-        //double expense = 0.0;
 
         if(orderMap.containsKey(reduceOrderId))
         {
@@ -170,9 +169,7 @@ public class OrderBook implements ISide, IOrderType, IAction
                     bidList.remove(addOrderToReduce);
                     orderMap.remove(reduceOrderId);
                 }
-                //income = this.CalculateIncome();
 
-                //TODO: Rethink Reduce orders: Buy.
                 if(bidShareCount >= targetSize) //bid shares >= targetSize
                 {
                     //print the price
@@ -205,9 +202,7 @@ public class OrderBook implements ISide, IOrderType, IAction
                     askList.remove(addOrderToReduce);
                     orderMap.remove(reduceOrderId);
                 }
-                //expense = this.CalculateExpense();
 
-                //TODO: Rethink Reduce orders: Sell.
                 if(askShareCount >= targetSize) //bid shares >= targetSize
                 {
                     //print the price
@@ -253,13 +248,11 @@ public class OrderBook implements ISide, IOrderType, IAction
             {
                 int adjustedSharesToBuy = targetSize - currentShareCount;
                 expense += (adjustedSharesToBuy * orderToBuy.getPrice());
-                remainingShares = (currentShareCount + orderToBuy.getSize()) - targetSize;
                 currentShareCount += adjustedSharesToBuy;
             }
             else
             {
                 expense += (orderToBuy.getSize() * orderToBuy.getPrice());
-                remainingShares = targetSize - currentShareCount;
                 currentShareCount += orderToBuy.getSize();
             }
         }
@@ -283,13 +276,11 @@ public class OrderBook implements ISide, IOrderType, IAction
             {
                 int adjustedShareSize = targetSize - currentShareCount;
                 income += (adjustedShareSize * orderToSell.getPrice());
-                remainingShares = (currentShareCount + orderToSell.getSize()) - targetSize;
                 currentShareCount += adjustedShareSize;
             }
             else
             {
                 income += (orderToSell.getSize() * orderToSell.getPrice());
-                remainingShares = targetSize - currentShareCount;
                 currentShareCount += orderToSell.getSize();
             }
         }
@@ -300,8 +291,10 @@ public class OrderBook implements ISide, IOrderType, IAction
     public void WriteMarketData(int timestamp, char orderAction, double expenditure)
     {
         String expenseString = (expenditure > 0.0 ? Double.toString(expenditure) :  "NA");
-        System.out.println(timestamp + " " + orderAction + " " + expenseString);
+        //System.out.println(timestamp + " " + orderAction + " " + expenseString);
+        stringToReturn.append(timestamp + " " + orderAction + " " + expenseString);
     }
+
 
     private AddOrder CreateAddOrder(String[] marketDataText)
     {
