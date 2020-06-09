@@ -303,13 +303,13 @@ public class OrderBook implements ISide, IOrderType, IAction
         try
         {
             int timeStamp = Integer.parseInt(marketDataText[0]);
-            //char orderType = Character.toUpperCase(marketDataText[1].charAt(0));
+            IOrderType.orderType orderType = IOrderType.orderType.ADD;
             String orderId = marketDataText[2];
             char side = Character.toUpperCase(marketDataText[3].charAt(0));
             double price = Double.parseDouble(marketDataText[4]);
             short orderSize = Short.parseShort(marketDataText[5]);
 
-            newAddOrder = new AddOrder(timeStamp, IOrderType.orderType.ADD, orderId, side, price, orderSize);
+            newAddOrder = new AddOrder(timeStamp, orderType, orderId, side, price, orderSize);
         }
 
         catch(Exception e)
@@ -326,11 +326,11 @@ public class OrderBook implements ISide, IOrderType, IAction
         try
         {
             int timeStamp = Integer.parseInt(marketDataText[0]);
-            //char orderType = marketDataText[1].charAt(0);
+            IOrderType.orderType orderType = IOrderType.orderType.REDUCE;
             String orderId = marketDataText[2];
             short orderSize = Short.parseShort(marketDataText[3]);
 
-            newReduceOrder = new ReduceOrder(timeStamp, IOrderType.orderType.REDUCE, orderId, orderSize);
+            newReduceOrder = new ReduceOrder(timeStamp, orderType, orderId, orderSize);
         }
 
         catch(Exception e)
