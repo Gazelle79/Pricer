@@ -46,7 +46,6 @@ public class ReduceOrderTest
         assertEquals(newReduceOrder2.getOrderType(), IOrderType.orderType.REDUCE);
         assertEquals(newReduceOrder2.getId(), "d");
         assertEquals(newReduceOrder2.getSize(), 157);
-
     }
 
     @Test

@@ -31,17 +31,16 @@ public class OrderBook implements ISide, IOrderType, IAction
         stringToReturn = new StringBuilder();
     }
 
-    public String ReadMarketData(String inputFileNameAndPath) throws IOException
+    public String ReadFinanceData(String inputFileNameAndPath) throws IOException
     {
         BufferedReader reader = null;
-        String marketDataText = null;
-        StringBuilder inputDataString = new StringBuilder();
+        String financeDataText = null;
 
         /*Not put in try / catch statement so error could be sent back to method caller.*/
         InputStream is = new FileInputStream(inputFileNameAndPath);
         reader = new BufferedReader(new InputStreamReader(is));
 
-        while ((marketDataText = reader.readLine()) != null)
+        while ((financeDataText = reader.readLine()) != null)
         {
                 /*
                  * Make a new Order object.
@@ -50,7 +49,7 @@ public class OrderBook implements ISide, IOrderType, IAction
                  * in an Order.
                  * Put that order object in a list of Order objects.
                  * */
-                String[] orderData = marketDataText.split(" ");
+                String[] orderData = financeDataText.split(" ");
                 switch (orderData[1])
                 {
                     case "A":
@@ -69,7 +68,7 @@ public class OrderBook implements ISide, IOrderType, IAction
                             {
                                 askList.add(addOrder);
                             }
-                            this.CalculateMarketData(addOrder);
+                            this.CalculateFinanceData(addOrder);
                         }
                         break;
                     }
@@ -80,7 +79,7 @@ public class OrderBook implements ISide, IOrderType, IAction
                         ReduceOrder reduceOrder = this.CreateReduceOrder(orderData);
                         if(reduceOrder != null)
                         {
-                            this.CalculateMarketData(reduceOrder);
+                            this.CalculateFinanceData(reduceOrder);
                         }
                         break;
                     }
@@ -91,13 +90,12 @@ public class OrderBook implements ISide, IOrderType, IAction
                         break;
                     }
                 }
-                inputDataString.append(marketDataText + "\n");
         }
         reader.close();
-        return inputDataString.toString();
+        return stringToReturn.toString();
     }
 
-    public void CalculateMarketData(Order orderToCalculate)
+    public void CalculateFinanceData(Order orderToCalculate)
     {
         switch (orderToCalculate.orderType)
         {
@@ -291,8 +289,8 @@ public class OrderBook implements ISide, IOrderType, IAction
     public void WriteMarketData(int timestamp, char orderAction, double expenditure)
     {
         String expenseString = (expenditure > 0.0 ? Double.toString(expenditure) :  "NA");
-        //System.out.println(timestamp + " " + orderAction + " " + expenseString);
-        stringToReturn.append(timestamp + " " + orderAction + " " + expenseString);
+        System.out.println(timestamp + " " + orderAction + " " + expenseString);
+        //stringToReturn.append(timestamp + " " + orderAction + " " + expenseString + "\n");
     }
 
 
