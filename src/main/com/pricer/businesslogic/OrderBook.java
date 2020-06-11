@@ -125,9 +125,15 @@ public class OrderBook implements ISide, IOrderType, IAction
 
             if (bidShareCount >= targetSize)
             {
-                double income = this.CalculateIncome();
-                this.WriteFinanceData(insertedOrder.getTimeStamp(), insertedOrder.getAction().actionValue(), income);
-                previousIncome = income;
+                income = this.CalculateIncome();
+                if(previousIncome != income)
+                {
+                    this.WriteFinanceData(insertedOrder.getTimeStamp(), insertedOrder.getAction().actionValue(), income);
+                    previousIncome = income;
+                }
+                else
+                {}
+
             }
         }
         else if (insertedOrder.getSide() == side.SELL)
@@ -136,9 +142,15 @@ public class OrderBook implements ISide, IOrderType, IAction
 
             if (askShareCount >= targetSize)
             {
-                double expense = this.CalculateExpense();
-                this.WriteFinanceData(insertedOrder.getTimeStamp(), insertedOrder.getAction().actionValue(), expense);
-                previousExpense = expense;
+                expense = this.CalculateExpense();
+                if(previousExpense != expense)
+                {
+                    this.WriteFinanceData(insertedOrder.getTimeStamp(), insertedOrder.getAction().actionValue(), expense);
+                    previousExpense = expense;
+                }
+                else
+                {}
+
             }
         }
         else{}
