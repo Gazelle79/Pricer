@@ -4,6 +4,7 @@ import main.com.pricer.businesslogic.*;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import java.io.File;
+import java.io.IOException;
 
 public class OrderBookTest
 {
@@ -20,6 +21,12 @@ public class OrderBookTest
     int targetSize = 200;
     private OrderBook orderBook = new OrderBook(targetSize);
 
+    private String addOrder1Text = "";
+    private String addOrder2Text = "";
+
+    private AddOrder newAddOrder1 = null;
+    private AddOrder newAddOrder2 = null;
+
     public OrderBookTest()
     {
         helper = new File(".").getAbsolutePath();
@@ -30,69 +37,31 @@ public class OrderBookTest
         filePathWithoutFile = pathToPricer + "/Pricer/InputFiles/";
         fileNameWithoutPath = "/PricerOutput.txt";
 
+        addOrder1Text = "28800538 A b S 44.26 100";
+        addOrder2Text = "28800562 A c B 44.10 100";
+
     }
 
     @Test
-    public void readMarketDataTest()
+    public void readFinanceDataTest() throws IOException
     {
-        int thisTest = 1;
-        assertEquals(thisTest, 1);
+        String pricerDataInfo = orderBook.ReadFinanceData(inputFileNameAndPath);
+        assertFalse(pricerDataInfo.isEmpty());
     }
 
     @Test
-    public void calculateMarketDataTest()
-    {
-        int thisOtherTest = 2;
-        assertEquals(thisOtherTest, 2);
-    }
-
-    @Test
-    public void calculateAddOrdersTest()
+    public void calculateFinanceDataTest()
     {
         int thisOtherTest = 2;
         assertEquals(thisOtherTest, 2);
     }
 
     @Test
-    public void calculateReduceOrdersTest()
+    public void writeFinanceDataTest()
     {
         int thisOtherTest = 2;
         assertEquals(thisOtherTest, 2);
     }
 
-    @Test
-    public void calculateIncomeTest()
-    {
-        int thisOtherTest = 2;
-        assertEquals(thisOtherTest, 2);
-    }
-
-    @Test
-    public void calculateExpenseTest()
-    {
-        int thisOtherTest = 2;
-        assertEquals(thisOtherTest, 2);
-    }
-
-    @Test
-    public void writeMarketDataTest()
-    {
-        int thisOtherTest = 2;
-        assertEquals(thisOtherTest, 2);
-    }
-
-    @Test
-    public void createReduceOrderTest()
-    {
-        int thisOtherTest = 2;
-        assertEquals(thisOtherTest, 2);
-    }
-
-    @Test
-    public void createAddOrderTest()
-    {
-        int thisOtherTest = 2;
-        assertEquals(thisOtherTest, 2);
-    }
 
 }

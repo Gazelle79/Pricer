@@ -126,7 +126,7 @@ public class OrderBook implements ISide, IOrderType, IAction
             if (bidShareCount >= targetSize)
             {
                 double income = this.CalculateIncome();
-                this.WriteMarketData(insertedOrder.getTimeStamp(), insertedOrder.getAction().actionValue(), income);
+                this.WriteFinanceData(insertedOrder.getTimeStamp(), insertedOrder.getAction().actionValue(), income);
                 previousIncome = income;
             }
         }
@@ -137,7 +137,7 @@ public class OrderBook implements ISide, IOrderType, IAction
             if (askShareCount >= targetSize)
             {
                 double expense = this.CalculateExpense();
-                this.WriteMarketData(insertedOrder.getTimeStamp(), insertedOrder.getAction().actionValue(), expense);
+                this.WriteFinanceData(insertedOrder.getTimeStamp(), insertedOrder.getAction().actionValue(), expense);
                 previousExpense = expense;
             }
         }
@@ -172,7 +172,7 @@ public class OrderBook implements ISide, IOrderType, IAction
                 {
                     //print the price
                     income = this.CalculateIncome();
-                    this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), income);
+                    this.WriteFinanceData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), income);
                     previousIncome = income;
                 }
                 else
@@ -181,7 +181,7 @@ public class OrderBook implements ISide, IOrderType, IAction
                     if (previousIncome != income) //the price changed
                     {
                         //print NA, because less than targetSize shares
-                        this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), 0.0);
+                        this.WriteFinanceData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), 0.0);
                         previousIncome = 0.0;
                     }
                     else //price didn't change
@@ -205,7 +205,7 @@ public class OrderBook implements ISide, IOrderType, IAction
                 {
                     //print the price
                     expense = this.CalculateExpense();
-                    this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), expense);
+                    this.WriteFinanceData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), expense);
                     previousExpense = expense;
                 }
                 else
@@ -214,7 +214,7 @@ public class OrderBook implements ISide, IOrderType, IAction
                     if (previousExpense != expense) //the price changed
                     {
                         //print NA, because less than targetSize shares
-                        this.WriteMarketData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), 0.0);
+                        this.WriteFinanceData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), 0.0);
                         previousExpense = 0.0;
                     }
                     else //price didn't change
@@ -286,11 +286,11 @@ public class OrderBook implements ISide, IOrderType, IAction
     }
 
     //Write out Market data, where it's appropriate.
-    public void WriteMarketData(int timestamp, char orderAction, double expenditure)
+    public void WriteFinanceData(int timestamp, char orderAction, double expenditure)
     {
         String expenseString = (expenditure > 0.0 ? Double.toString(expenditure) :  "NA");
         System.out.println(timestamp + " " + orderAction + " " + expenseString);
-        //stringToReturn.append(timestamp + " " + orderAction + " " + expenseString + "\n");
+        stringToReturn.append(timestamp + " " + orderAction + " " + expenseString + "\n");
     }
 
 
