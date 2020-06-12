@@ -47,7 +47,7 @@ public class OrderBook implements ISide, IOrderType, IAction
                  * Parse each character in this line of text.
                  * Assign each character to its' specific piece of data
                  * in an Order.
-                 * Put that order object in a list of Order objects.
+                 * Put that Order object in a list of Order objects.
                  * */
                 String[] orderData = financeDataText.split(" ");
                 switch (orderData[1])
@@ -85,7 +85,7 @@ public class OrderBook implements ISide, IOrderType, IAction
                     }
                     default:
                     {
-                        //Do nothing, throw an error, etc.
+                        //Throw an error. THere are only Add & Reduce orders.
                         System.err.println("Invalid input data at position 1:" + orderData[1]);
                         break;
                     }
@@ -180,25 +180,24 @@ public class OrderBook implements ISide, IOrderType, IAction
                     orderMap.remove(reduceOrderId);
                 }
 
-                if(bidShareCount >= targetSize) //bid shares >= targetSize
+                if(bidShareCount >= targetSize) //The bid count is greater than the target size.
                 {
-                    //print the price
+                    //If the income changed, print it. If it didn't, do nothing.
                     income = this.CalculateIncome();
-                    this.WriteFinanceData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), income);
-                    previousIncome = income;
-                }
-                else
-                {
-                    income = 0.0;
-                    if (previousIncome != income) //the price changed
+                    if(previousIncome != income)
                     {
-                        //print NA, because less than targetSize shares
+                        this.WriteFinanceData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), income);
+                        previousIncome = income;
+                    }
+                }
+                else //The bid count is less than the target size.
+                {
+                    //If the income changed, print it. If it didn't, do nothing.
+                    income = 0.0;
+                    if (previousIncome != income)
+                    {
                         this.WriteFinanceData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), 0.0);
                         previousIncome = 0.0;
-                    }
-                    else //price didn't change
-                    {
-                        //blank (do nothing, print nothing)
                     }
                 }
             }
@@ -213,26 +212,27 @@ public class OrderBook implements ISide, IOrderType, IAction
                     orderMap.remove(reduceOrderId);
                 }
 
-                if(askShareCount >= targetSize) //bid shares >= targetSize
+                if(askShareCount >= targetSize)  //The ask count is greater than the target size.
                 {
-                    //print the price
+                    //If the expense changed, print it. If it didn't, do nothing.
                     expense = this.CalculateExpense();
-                    this.WriteFinanceData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), expense);
-                    previousExpense = expense;
-                }
-                else
-                {
-                    expense = 0.0;
-                    if (previousExpense != expense) //the price changed
+                    if(expense != previousExpense)
                     {
-                        //print NA, because less than targetSize shares
+                        this.WriteFinanceData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), expense);
+                        previousExpense = expense;
+                    }
+
+                }
+                else //The ask count is less than the target size.
+                {
+                    //If the expense changed, print NA. If it didn't, do nothing.
+                    expense = 0.0;
+                    if (previousExpense != expense)
+                    {
                         this.WriteFinanceData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), 0.0);
                         previousExpense = 0.0;
                     }
-                    else //price didn't change
-                    {
-                        //blank (do nothing, print nothing)
-                    }
+
                 }
             }
             else

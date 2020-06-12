@@ -28,7 +28,7 @@ public class PricerMain {
         }
         catch(Exception e)
         {
-            System.out.println("Something went wrong: " + e.getMessage());
+            System.err.println("Something went wrong: " + e.toString());
         }
 
 
