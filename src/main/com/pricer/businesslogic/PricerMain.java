@@ -10,7 +10,6 @@ public class PricerMain {
         String currentPath = new File("").getAbsolutePath();
         int targetSize = 200;
 
-        //String inputFileNameAndPath =  currentPath + "/InputFiles/PricerInput.txt";
         String inputFileNameAndPath =  currentPath + "/InputFiles/PricerInput2.txt";
         //String inputFileNameAndPath =  currentPath + "/InputFiles/pricer.in";
         //String outputFileNameAndPath = currentPath + "/OutputFiles/PricerOutput.txt";
