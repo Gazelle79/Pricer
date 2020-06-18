@@ -22,7 +22,7 @@ public class PricerMain {
         OrderBook shareOrderBook = new OrderBook(targetSize);
         try
         {
-            pricerDataInfo = shareOrderBook.readFinanceData(inputFileNameAndPath);
+            shareOrderBook.readFinanceData(inputFileNameAndPath);
         }
         catch(Exception e)
         {
