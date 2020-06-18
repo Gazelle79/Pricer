@@ -2,6 +2,7 @@ package main.com.pricer.businesslogic;
 
 import java.io.BufferedReader;
 import java.io.*;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.ArrayList;
 import main.com.pricer.interfaces.*;
@@ -22,6 +23,8 @@ public class OrderBook implements ISide, IOrderType, IAction
     private double expense = 0.0;
     private StringBuilder stringToReturn = null;
 
+    private DecimalFormat twoDigitFormat = new DecimalFormat("0.00");
+
     public OrderBook(int targetSize)
     {
         this.targetSize = targetSize;
@@ -31,7 +34,7 @@ public class OrderBook implements ISide, IOrderType, IAction
         stringToReturn = new StringBuilder();
     }
 
-    public String ReadFinanceData(String inputFileNameAndPath) throws IOException
+    public String readFinanceData(String inputFileNameAndPath) throws IOException
     {
         BufferedReader reader = null;
         String financeDataText = null;
@@ -52,7 +55,7 @@ public class OrderBook implements ISide, IOrderType, IAction
                     case "A":
                     {
                         //Make an Add order.
-                        AddOrder addOrder = this.CreateAddOrder(orderData);
+                        AddOrder addOrder = this.createAddOrder(orderData);
                         if(addOrder != null)
                         {
                             orderMap.put(addOrder.getId(), addOrder);
@@ -65,7 +68,7 @@ public class OrderBook implements ISide, IOrderType, IAction
                             {
                                 askList.add(addOrder);
                             }
-                            this.CalculateFinanceData(addOrder);
+                            this.calculateFinanceData(addOrder);
                         }
                         break;
                     }
@@ -73,10 +76,10 @@ public class OrderBook implements ISide, IOrderType, IAction
                     case "R":
                     {
                         //Make an Reduce order.
-                        ReduceOrder reduceOrder = this.CreateReduceOrder(orderData);
+                        ReduceOrder reduceOrder = this.createReduceOrder(orderData);
                         if(reduceOrder != null)
                         {
-                            this.CalculateFinanceData(reduceOrder);
+                            this.calculateFinanceData(reduceOrder);
                         }
                         break;
                     }
@@ -92,19 +95,19 @@ public class OrderBook implements ISide, IOrderType, IAction
         return stringToReturn.toString();
     }
 
-    public void CalculateFinanceData(Order orderToCalculate)
+    public void calculateFinanceData(Order orderToCalculate)
     {
         switch (orderToCalculate.orderType)
         {
             case ADD:
             {
-               this.CalculateAddOrders((AddOrder)orderToCalculate);
+               this.calculateAddOrders((AddOrder)orderToCalculate);
                 break;
             }
 
             case REDUCE:
             {
-                this.CalculateReduceOrders((ReduceOrder)orderToCalculate);
+                this.calculateReduceOrders((ReduceOrder)orderToCalculate);
                 break;
             }
             default:
@@ -114,7 +117,7 @@ public class OrderBook implements ISide, IOrderType, IAction
         }
     }
 
-    private void CalculateAddOrders(AddOrder insertedOrder)
+    private void calculateAddOrders(AddOrder insertedOrder)
     {
         if (insertedOrder.getSide() == side.BUY)
         {
@@ -122,11 +125,11 @@ public class OrderBook implements ISide, IOrderType, IAction
 
             if (bidShareCount >= targetSize) //The bid count is greater than the target size.
             {
-                //If the income changed, print it. If it didn't, do nothing.
-                income = this.CalculateIncome();
+                //If the income changed, print it. If it didn't, print / do nothing.
+                income = this.calculateIncome();
                 if(previousIncome != income)
                 {
-                    this.WriteFinanceData(insertedOrder.getTimeStamp(), insertedOrder.getAction().actionValue(), income);
+                    this.writeFinanceData(insertedOrder.getTimeStamp(), insertedOrder.getAction().actionValue(), income);
                     previousIncome = income;
                 }
             }
@@ -137,18 +140,18 @@ public class OrderBook implements ISide, IOrderType, IAction
 
             if (askShareCount >= targetSize) //The ask count is greater than the target size.
             {
-                //If the expense changed, print it. If it didn't, do nothing.
-                expense = this.CalculateExpense();
+                //If the expense changed, print it. If it didn't, print / do nothing.
+                expense = this.calculateExpense();
                 if(previousExpense != expense)
                 {
-                    this.WriteFinanceData(insertedOrder.getTimeStamp(), insertedOrder.getAction().actionValue(), expense);
+                    this.writeFinanceData(insertedOrder.getTimeStamp(), insertedOrder.getAction().actionValue(), expense);
                     previousExpense = expense;
                 }
             }
         }
     }
 
-    private void CalculateReduceOrders(ReduceOrder reduceOrder)
+    private void calculateReduceOrders(ReduceOrder reduceOrder)
     {
         String reduceOrderId = reduceOrder.getId();
         AddOrder addOrderToReduce = null;
@@ -174,21 +177,21 @@ public class OrderBook implements ISide, IOrderType, IAction
 
                 if(bidShareCount >= targetSize) //The bid count is greater than the target size.
                 {
-                    //If the income changed, print it. If it didn't, do nothing.
-                    income = this.CalculateIncome();
+                    //If the income changed, print it. If it didn't, print / do nothing.
+                    income = this.calculateIncome();
                     if(previousIncome != income)
                     {
-                        this.WriteFinanceData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), income);
+                        this.writeFinanceData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), income);
                         previousIncome = income;
                     }
                 }
                 else //The bid count is less than the target size.
                 {
-                    //If the income changed, print it. If it didn't, do nothing.
+                    //If the income changed, print it. If it didn't, print / do nothing.
                     income = 0.0;
                     if (previousIncome != income)
                     {
-                        this.WriteFinanceData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), 0.0);
+                        this.writeFinanceData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), 0.0);
                         previousIncome = 0.0;
                     }
                 }
@@ -206,25 +209,23 @@ public class OrderBook implements ISide, IOrderType, IAction
 
                 if(askShareCount >= targetSize)  //The ask count is greater than the target size.
                 {
-                    //If the expense changed, print it. If it didn't, do nothing.
-                    expense = this.CalculateExpense();
+                    //If the expense changed, print it. If it didn't, print / do nothing.
+                    expense = this.calculateExpense();
                     if(expense != previousExpense)
                     {
-                        this.WriteFinanceData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), expense);
+                        this.writeFinanceData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), expense);
                         previousExpense = expense;
                     }
-
                 }
                 else //The ask count is less than the target size.
                 {
-                    //If the expense changed, print NA. If it didn't, do nothing.
+                    //If the expense changed, print NA. If it didn't, print / do nothing.
                     expense = 0.0;
                     if (previousExpense != expense)
                     {
-                        this.WriteFinanceData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), 0.0);
+                        this.writeFinanceData(reduceOrder.getTimeStamp(), addOrderToReduce.getAction().actionValue(), 0.0);
                         previousExpense = 0.0;
                     }
-
                 }
             }
             else
@@ -233,7 +234,7 @@ public class OrderBook implements ISide, IOrderType, IAction
         }
     }
 
-    private double CalculateExpense()
+    private double calculateExpense()
     {
         //Sort ALL bids from lowest to highest.
         askList.sort(new SortSharePriceAscending());
@@ -261,7 +262,7 @@ public class OrderBook implements ISide, IOrderType, IAction
         return expense;
     }
 
-    private double CalculateIncome()
+    private double calculateIncome()
     {
         //Sort ALL bids from highest to lowest.
         bidList.sort(new SortSharePriceDescending());
@@ -290,15 +291,14 @@ public class OrderBook implements ISide, IOrderType, IAction
     }
 
     //Write out Market data, where it's appropriate.
-    public void WriteFinanceData(int timestamp, char orderAction, double expenditure)
+    public void writeFinanceData(int timestamp, char orderAction, double expenditure)
     {
-        String expenseString = (expenditure > 0.0 ? Double.toString(expenditure) :  "NA");
+        String expenseString = (expenditure > 0.0 ? twoDigitFormat.format(expenditure) :  "NA");
         System.out.println(timestamp + " " + orderAction + " " + expenseString);
-        stringToReturn.append(timestamp + " " + orderAction + " " + expenseString + "\n");
     }
 
 
-    private AddOrder CreateAddOrder(String[] marketDataText)
+    private AddOrder createAddOrder(String[] marketDataText)
     {
         AddOrder newAddOrder = null;
 
@@ -321,7 +321,7 @@ public class OrderBook implements ISide, IOrderType, IAction
         return newAddOrder;
     }
 
-    private ReduceOrder CreateReduceOrder(String[] marketDataText)
+    private ReduceOrder createReduceOrder(String[] marketDataText)
     {
         ReduceOrder newReduceOrder = null;
 

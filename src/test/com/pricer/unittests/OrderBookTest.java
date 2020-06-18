@@ -45,7 +45,7 @@ public class OrderBookTest
     @Test
     public void readFinanceDataTest() throws IOException
     {
-        String pricerDataInfo = orderBook.ReadFinanceData(inputFileNameAndPath);
+        String pricerDataInfo = orderBook.readFinanceData(inputFileNameAndPath);
         assertFalse(pricerDataInfo.isEmpty());
     }
 
