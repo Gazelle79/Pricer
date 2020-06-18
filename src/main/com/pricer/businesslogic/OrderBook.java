@@ -21,7 +21,6 @@ public class OrderBook implements ISide, IOrderType, IAction
     private double previousExpense = 0.0;
     private double income = 0.0;
     private double expense = 0.0;
-    private StringBuilder stringToReturn = null;
 
     private DecimalFormat twoDigitFormat = new DecimalFormat("0.00");
 
@@ -31,10 +30,9 @@ public class OrderBook implements ISide, IOrderType, IAction
         orderMap = new HashMap<>();  //Contains all ADD orders read in from the data file. Does not contain Reduce orders.
         askList = new ArrayList();  //Contains all SELL orders in OrderMap.
         bidList = new ArrayList();  //Contains all BUY orders in OrderMap.
-        stringToReturn = new StringBuilder();
     }
 
-    public String readFinanceData(String inputFileNameAndPath) throws IOException
+    public void readFinanceData(String inputFileNameAndPath) throws IOException
     {
         BufferedReader reader = null;
         String financeDataText = null;
@@ -92,7 +90,6 @@ public class OrderBook implements ISide, IOrderType, IAction
                 }
         }
         reader.close();
-        return stringToReturn.toString();
     }
 
     public void calculateFinanceData(Order orderToCalculate)
