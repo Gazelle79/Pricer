@@ -12,7 +12,6 @@ public class PricerMain {
 
         String inputFileNameAndPath =  currentPath + "/InputFiles/PricerInput2.txt";
         //String inputFileNameAndPath =  currentPath + "/InputFiles/pricer.in";
-        //String outputFileNameAndPath = currentPath + "/OutputFiles/PricerOutput.txt";
 
         if(args.length > 1)
         {
@@ -23,13 +22,11 @@ public class PricerMain {
         OrderBook shareOrderBook = new OrderBook(targetSize);
         try
         {
-            pricerDataInfo = shareOrderBook.ReadFinanceData(inputFileNameAndPath);
+            pricerDataInfo = shareOrderBook.readFinanceData(inputFileNameAndPath);
         }
         catch(Exception e)
         {
             System.err.println("Something went wrong: " + e.toString());
         }
-
-
     }
 }

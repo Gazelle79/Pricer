@@ -2,6 +2,7 @@ package main.com.pricer.businesslogic;
 
 import main.com.pricer.interfaces.*;
 
+
 public class AddOrder extends Order implements IOrderType, ISide, IAction
 {
     //declarations & initial values.
@@ -16,10 +17,7 @@ public class AddOrder extends Order implements IOrderType, ISide, IAction
         return thisSide;
     }
 
-    public double getPrice()
-    {
-        return price;
-    }
+    public double getPrice() { return price; }
 
     public int getTimeStamp()
     {
