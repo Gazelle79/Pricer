@@ -42,7 +42,6 @@ public class AddOrderTest
         assertEquals(newAddOrder2.getSide(), ISide.side.BUY);
         assertEquals(newAddOrder2.getPrice(), 44.10, 0.0);
         assertEquals(newAddOrder2.getSize(), 100);
-
     }
 
     @Test

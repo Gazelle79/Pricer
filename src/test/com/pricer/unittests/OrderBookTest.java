@@ -1,6 +1,7 @@
 package test.com.pricer.unittests;
 
 import main.com.pricer.businesslogic.*;
+import main.com.pricer.interfaces.IOrderType;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import java.io.File;
@@ -13,13 +14,15 @@ public class OrderBookTest
     private String fileNameWithoutPath = "";  //a file with no directory path attached
 
     private String inputFileNameAndPath =  ""; //read in data for a contact card
-    private String outputFileNameAndPath = ""; //path to write data to for a contact card
 
     private String helper = "";
     private String pathToPricer = "";
 
-    int targetSize = 200;
-    private OrderBook orderBook = new OrderBook(targetSize);
+    String goodTargetSize = "200";
+    String badTargetSize = "Terrier";
+    int actualTargetSize = 200;
+
+    private OrderBook orderBook = null;
 
     private String addOrder1Text = "";
     private String addOrder2Text = "";
@@ -33,7 +36,6 @@ public class OrderBookTest
         pathToPricer = helper.substring(0, helper.indexOf("/Pricer"));
 
         inputFileNameAndPath =  pathToPricer + "/Pricer/InputFiles/PricerInput.txt";
-        outputFileNameAndPath = pathToPricer + "/Pricer/OutputFiles/PricerOutput.txt";
         filePathWithoutFile = pathToPricer + "/Pricer/InputFiles/";
         fileNameWithoutPath = "/PricerOutput.txt";
 
@@ -45,23 +47,31 @@ public class OrderBookTest
     @Test
     public void readFinanceDataTest() throws IOException
     {
-        String pricerDataInfo = orderBook.readFinanceData(inputFileNameAndPath);
-        assertFalse(pricerDataInfo.isEmpty());
+        int targetSize = Integer.parseInt(goodTargetSize);
+        assertEquals(targetSize, actualTargetSize);
+        orderBook = new OrderBook(targetSize);
+
+        File inputFile = new File(inputFileNameAndPath);
+        assertNotNull(inputFile);
+        assertTrue(inputFile.exists());
+
+        orderBook.readFinanceData(inputFileNameAndPath);
     }
 
-    @Test
-    public void calculateFinanceDataTest()
+    private AddOrder createAddOrder(String[] addOrderData)
     {
-        int thisOtherTest = 2;
-        assertEquals(thisOtherTest, 2);
-    }
+        AddOrder newAddOrder = null;
 
-    @Test
-    public void writeFinanceDataTest()
-    {
-        int thisOtherTest = 2;
-        assertEquals(thisOtherTest, 2);
-    }
+        int timeStamp = Integer.parseInt(addOrderData[0]);
+        IOrderType.orderType orderType = IOrderType.orderType.ADD;
+        String orderId = addOrderData[2];
+        char side = Character.toUpperCase(addOrderData[3].charAt(0));
+        double price = Double.parseDouble(addOrderData[4]);
+        short orderSize = Short.parseShort(addOrderData[5]);
 
+        newAddOrder = new AddOrder(timeStamp, orderType, orderId, side, price, orderSize);
+
+        return newAddOrder;
+    }
 
 }
