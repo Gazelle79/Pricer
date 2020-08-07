@@ -1,0 +1,5 @@
+*.in linguist-documentation
+*.1 linguist-documentation
+*.200 linguist-documentation
+*.10000 linguist-documentation
+*.txt linguist-documentation
