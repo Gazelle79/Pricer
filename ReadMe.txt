@@ -34,13 +34,13 @@ Order Action - Whether this order will sell this stock (S), or buy it (B).
 Price - The profit from selling this stock (S), or the expense of buying this stock (B). Expressed as a decimal.
 
 EXAMPLES:
-28800758 S 8832.56
-28800796 S NA
-28800812 S 8832.56
-28800974 B 8865.00
-28800975 B NA
-28812071 S NA
-28813830 B 8845.00
+> 28800758 S 8832.56
+> 28800796 S NA
+> 28800812 S 8832.56
+> 28800974 B 8865.00
+> 28800975 B NA
+> 28812071 S NA
+> 28813830 B 8845.00
 
 REQUIREMENTS
 ------------
