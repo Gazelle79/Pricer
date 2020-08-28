@@ -1,3 +1,4 @@
+
 SUMMARY
 -------
 **Pricer is a small java application that reads stock price data from a file.** It calculates: 
@@ -5,21 +6,20 @@ SUMMARY
 * the cost of buying a specific number of shares at a specified price 
 * the income from selling a specific number of shares at a specified price
 
-That income, or expense, is printed only when the cost of buying, or income from selling, changes. No data is written to any files.  
+That income, or expense, is printed only when the cost of buying (or income from selling) changes. No data is written to any files.  
 
-**This application doesn't have a GUI. You run it from a command prompt.**
+**Pricer doesn't have a GUI. You run it from a command prompt.**
 
 ####  Input Parameters: 
  -  ``targetSize``  
 
-INTEGER. (Default value: 200) When the total number of shares is this number or higher, Pricer calculates the income from selling, or the expense of buying, the shares. 
+    - INTEGER. (Default value: 200) When the total number of shares is this number or higher, Pricer calculates the income from selling, or the expense of buying, the shares. 
 
 ####  Input Files: 
 
 - ``pricerdata.in``
  
 Data is read in from this file. It's located at:``.../Pricer/InputFiles/pricerdata.in``
-
 A user can optionally specify their own input file path.
 
 REQUIREMENTS
@@ -32,8 +32,7 @@ OPTIONAL
 --------
 - [x] JUnit 4.12 or higher
  
-
-
+ 
 GETTING STARTED
 ---------------
 There are two steps to make Pricer work:
@@ -53,11 +52,11 @@ TO START
 
 ### EXECUTING Pricer:
 #### without any arguments:
-``java src/main/com/pricer/businesslogic/PricerMain ``
+ - ``java src/main/com/pricer/businesslogic/PricerMain ``
 
 The default value for ``targetSize`` is used if no argument is provided.
 
 
 #### with the TargetSize argument:
-``java src/main/com/pricer/businesslogic/PricerMain [*targetSize*] ``
+ - ``java src/main/com/pricer/businesslogic/PricerMain [*targetSize*] ``
 
