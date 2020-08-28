@@ -1,41 +1,44 @@
-Pricer
-------
-
 SUMMARY
 -------
-This is a small java application that reads in stock price data. It calculates the cost of buying, or the income from selling, a specific number of shares at a specific price. That cost, or expense, is printed only when the cost or expense changes. No data is written to any files.  
+**Pricer is a small java application that reads stock price data from a file.** It calculates: 
 
-Pricer has only one input argument: 
- - targetSize
+* the cost of buying a specific number of shares at a specified price 
+* the income from selling a specific number of shares at a specified price
 
-An INTEGER. When the total number of shares is this number, or higher, you calculate the income from selling those shares, 
-or the expense of buying those shares. 
+That income, or expense, is printed only when the cost of buying, or income from selling, changes. No data is written to any files.  
 
-Data is read in from:
-../Pricer/InputFiles/pricerdata.in
+**This application doesn't have a GUI. You run it from a command prompt.**
 
-That's the default file path for input. The user can also specify their own input file path.
+####  Input Parameters: 
+ -  ``targetSize``  
 
-This application doesn't have a GUI. You run it from a command prompt.
+INTEGER. (Default value: 200) When the total number of shares is this number or higher, Pricer calculates the income from selling, or the expense of buying, the shares. 
 
+####  Input Files: 
+
+- ``pricerdata.in``
+ 
+Data is read in from this file. It's located at:``.../Pricer/InputFiles/pricerdata.in``
+
+A user can optionally specify their own input file path.
 
 REQUIREMENTS
 ------------
-Java 1.8.0_181 or higher 
+- [x] Java 1.8.0_181 or higher 
 (https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 
 
 OPTIONAL
 --------
-JUnit 4.12 or higher
-This is specifically for running unit tests. JUnit isn't required, but it's suggested for any developer. 
+- [x] JUnit 4.12 or higher
+ 
 
 
 GETTING STARTED
 ---------------
 There are two steps to make Pricer work:
- - Compile the application
- - Execute the application
+ - [x] Compile the application
+ - [x] Execute the application
 
 TO START
 --------
@@ -44,16 +47,17 @@ TO START
  - Compile the application.
  - Execute the application.
 
-COMPILING the application:
-javac src/main/com/pricer/businesslogic/PricerMain.java
+### COMPILING Pricer:
+`` javac src/main/com/pricer/businesslogic/PricerMain.java ``
 
 
-EXECUTING the application:
+### EXECUTING Pricer:
+#### without any arguments:
+``java src/main/com/pricer/businesslogic/PricerMain ``
 
-WITH the TargetSize argument:
------------------------------
-java src/main/com/pricer/businesslogic/PricerMain [*targetSize*]
+The default value for ``targetSize`` is used if no argument is provided.
 
-Default values will be used if no parameter is provided. They are:
-targetSize: 200
+
+#### with the TargetSize argument:
+``java src/main/com/pricer/businesslogic/PricerMain [*targetSize*] ``
 
