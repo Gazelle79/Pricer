@@ -15,7 +15,7 @@ That income - or expense - is printed only when the cost of buying or selling ch
 ####  Input Parameters: 
  -  ``targetSize``  
 
-    - INTEGER. (Default value: 200) When the total number of shares is this number or higher, Pricer calculates the income or expense of buying oor selling the shares. 
+    - INTEGER. (Default value: 200) Minimum nuber of total shares needed before Pricer calculates the income / expense of buying / selling the shares. 
 
 ####  Input:
 
