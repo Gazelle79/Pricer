@@ -10,18 +10,21 @@ SUMMARY
 
 That income - or expense - is printed only when the cost of buying or selling changes. No data is written to any files.  
 
-**Pricer doesn't have a GUI. You run it from a command prompt.**
+**Pricer doesn't have a GUI. It is run from a command prompt.**
 
 ####  Input Parameters: 
  -  ``targetSize``  
 
-    - INTEGER. (Default value: 200) When the total number of shares is this number or higher, Pricer calculates the income from selling, or the expense of buying, the shares. 
+    - INTEGER. (Default value: 200) When the total number of shares is this number or higher, Pricer calculates the income or expense of buying oor selling the shares. 
 
-####  Input Files: 
+####  Input:
+
+Data is read in from:
 
 - ``pricerdata.in``
- 
-Data is read in from this file. It's located at:``.../Pricer/InputFiles/pricerdata.in``
+
+    Location:``.../Pricer/InputFiles/pricerdata.in``
+
 A user can optionally specify their own input file path.
 
 REQUIREMENTS
