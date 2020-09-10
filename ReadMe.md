@@ -1,12 +1,14 @@
 
+# PRICER  :dollar: :pound: :euro:
+
 SUMMARY
 -------
 **Pricer is a small java application that reads stock price data from a file.** It calculates: 
 
-* the cost of buying a specific number of shares at a specified price 
-* the income from selling a specific number of shares at a specified price
+* the cost of buying shares at a specified price 
+* the income from selling shares at a specified price
 
-That income, or expense, is printed only when the cost of buying (or income from selling) changes. No data is written to any files.  
+That income - or expense - is printed only when the cost of buying or selling changes. No data is written to any files.  
 
 **Pricer doesn't have a GUI. You run it from a command prompt.**
 
