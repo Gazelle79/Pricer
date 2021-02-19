@@ -1,5 +1,5 @@
 
-# PRICER  :dollar: :pound: :euro:
+# PRICER  :dollar:
 
 SUMMARY
 -------
@@ -37,12 +37,6 @@ OPTIONAL
 --------
 - [x] JUnit 4.12 or higher
  
- 
-GETTING STARTED
----------------
-There are two steps to make Pricer work:
- - [x] Compile the application
- - [x] Execute the application
 
 TO START
 --------
