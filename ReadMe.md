@@ -4,14 +4,14 @@
 SUMMARY
 -------
 **A java application that calculates the cost of buying & selling shares at a specific price.** It reads stock price data from a file.
-If you're buying shares, the income from selling them is printed. If you're selling shares, the expense of buying them is printed.
+When buying shares, the income from selling them is printed. When selling shares, the expense of buying them is printed.
 
 **Pricer doesn't have a GUI. It's run from a command prompt.**
 
 ####  Input Parameters: 
  -  ``targetSize``  
 
-    - INTEGER. (Default value: 200) Minimum nuber of total shares needed before Pricer calculates the income / expense of buying / selling the shares. 
+    - INTEGER. Minimum amount shares needed for Pricer to calculates the income or expense of buying & selling those shares. [Default value: 200]  
 
 ####  Input:
 
@@ -19,7 +19,7 @@ Data is read in from:
 
 - ``pricerdata.in``
 
-    Location:``.../Pricer/InputFiles/pricerdata.in``
+  Location:``.../Pricer/InputFiles/pricerdata.in``
 
 A user can optionally specify their own input file path.
 
