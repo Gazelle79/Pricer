@@ -52,6 +52,6 @@ TO START
 The default value for ``targetSize`` is used if no argument is provided.
 
 
-#### with the TargetSize argument:
- - ``java src/main/com/pricer/businesslogic/PricerMain [*targetSize*] ``
+#### with a TargetSize argument (500 shares):
+ - ``java src/main/com/pricer/businesslogic/PricerMain 500 ``
 
