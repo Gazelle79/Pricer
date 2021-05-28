@@ -4,13 +4,10 @@
 
 SUMMARY
 -------
-**A java application that calculates the cost of buying & selling shares or an imaginary stock at a specific price.** It reads stock price data from a file.
+**A java application that calculates the cost of buying & selling shares or an imaginary stock at a specific price.** It reads stock price data from a file. Please see the included problem statement for specific details.
 
  - When buying shares, it prints the income you'd get from selling them. 
-
  - When selling shares, it prints the expense you'd incur from buying them.
-
-Please see the included problem statement.
 
 **Pricer doesn't have a GUI. It's run from a command prompt.**
 
