@@ -1,6 +1,9 @@
+# PRICER  :dollar:
+
+PROBLEM STATEMENT
+-----------------
 [Problem_Statement.pdf](https://github.com/Gazelle79/Pricer/files/6561344/Problem_Statement.pdf)
 
-# PRICER  :dollar:
 
 SUMMARY
 -------
