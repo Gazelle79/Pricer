@@ -1,4 +1,4 @@
-package main.java.com.pricer.interfaces;
+package com.pricer.interfaces;
 
 public interface IOrderType
 {

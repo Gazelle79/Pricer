@@ -2,7 +2,7 @@ package com.pricer.unittests;
 
 import com.pricer.businesslogic.AddOrder;
 import com.pricer.businesslogic.ReduceOrder;
-import main.java.com.pricer.interfaces.IOrderType;
+import com.pricer.interfaces.IOrderType;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;

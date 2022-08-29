@@ -1,8 +1,8 @@
 package com.pricer.unittests;
 
 import com.pricer.businesslogic.AddOrder;
-import main.java.com.pricer.interfaces.IOrderType;
-import main.java.com.pricer.interfaces.ISide;
+import com.pricer.interfaces.IOrderType;
+import com.pricer.interfaces.ISide;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;

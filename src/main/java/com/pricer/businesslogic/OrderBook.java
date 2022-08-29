@@ -1,8 +1,8 @@
 package com.pricer.businesslogic;
 
-import main.java.com.pricer.interfaces.IAction;
-import main.java.com.pricer.interfaces.IOrderType;
-import main.java.com.pricer.interfaces.ISide;
+import com.pricer.interfaces.IAction;
+import com.pricer.interfaces.IOrderType;
+import com.pricer.interfaces.ISide;
 
 import java.io.*;
 import java.text.DecimalFormat;
