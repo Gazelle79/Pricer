@@ -13,9 +13,7 @@ That income - or expense - is printed only when the cost of buying or selling ch
 **Pricer doesn't have a GUI. It is run from a command prompt.**
 
 ####  Input Parameters: 
- -  ``targetSize``  
-
-    - INTEGER. (Default value: 200) Minimum nuber of total shares needed before Pricer calculates the income / expense of buying / selling the shares. 
+ -  ``targetSize``  - [Integer, Default value: 200] Minimum number of total shares needed before Pricer calculates the income / expense of buying / selling the shares. 
 
 ####  Input:
 
@@ -29,19 +27,19 @@ A user can optionally specify their own input file path.
 
 REQUIREMENTS
 ------------
-- [x] Java 1.8.0_181 or higher 
-(https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-
+- [x] Java 14 or higher 
+- [x] Maven 3.6.2 or higher
 
 OPTIONAL
 --------
-- [x] JUnit 4.12 or higher
+- [x] JUnit 5.8.1 or higher
  
  
 GETTING STARTED
 ---------------
 There are two steps to make Pricer work:
  - [x] Compile the application
+ - [x] Unit test the application
  - [x] Execute the application
 
 TO START
@@ -49,19 +47,22 @@ TO START
  - Open a command prompt in Linux or Windows.
  - Change directories to the location of Pricer.
  - Compile the application.
+ - Unit test the application.
  - Execute the application.
 
 ### COMPILING Pricer:
-`` javac src/main/com/pricer/businesslogic/PricerMain.java ``
+`` mvn clean compile ``
 
+### UNIT TESTING Pricer:
+`` mvn clean test ``
 
 ### EXECUTING Pricer:
 #### without any arguments:
- - ``java src/main/com/pricer/businesslogic/PricerMain ``
+ - ``mvn exec:java ``
 
 The default value for ``targetSize`` is used if no argument is provided.
 
 
-#### with the TargetSize argument:
- - ``java src/main/com/pricer/businesslogic/PricerMain [*targetSize*] ``
+#### with the TargetSize argument [example: 200]:
+ - ``mvn exec:java -Dexec.args="200" ``
 
