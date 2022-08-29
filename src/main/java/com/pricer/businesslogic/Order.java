@@ -1,6 +1,6 @@
-package main.com.pricer.businesslogic;
+package com.pricer.businesslogic;
 
-import main.com.pricer.interfaces.*;
+import main.java.com.pricer.interfaces.IOrderType;
 
 public abstract class Order implements IOrderType {
 

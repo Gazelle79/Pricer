@@ -1,4 +1,4 @@
-package main.com.pricer.interfaces;
+package main.java.com.pricer.interfaces;
 
 public interface ISide {
 

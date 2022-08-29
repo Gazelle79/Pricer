@@ -1,11 +1,13 @@
-package main.com.pricer.businesslogic;
+package com.pricer.businesslogic;
 
-import java.io.BufferedReader;
+import main.java.com.pricer.interfaces.IAction;
+import main.java.com.pricer.interfaces.IOrderType;
+import main.java.com.pricer.interfaces.ISide;
+
 import java.io.*;
 import java.text.DecimalFormat;
-import java.util.HashMap;
 import java.util.ArrayList;
-import main.com.pricer.interfaces.*;
+import java.util.HashMap;
 
 
 public class OrderBook implements ISide, IOrderType, IAction

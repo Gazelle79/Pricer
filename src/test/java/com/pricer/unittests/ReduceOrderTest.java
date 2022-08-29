@@ -1,9 +1,12 @@
-package test.com.pricer.unittests;
+package com.pricer.unittests;
 
-import main.com.pricer.businesslogic.*;
-import main.com.pricer.interfaces.*;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import com.pricer.businesslogic.AddOrder;
+import com.pricer.businesslogic.ReduceOrder;
+import main.java.com.pricer.interfaces.IOrderType;
+
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 
 public class ReduceOrderTest

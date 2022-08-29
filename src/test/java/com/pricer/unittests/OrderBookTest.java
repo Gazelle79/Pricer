@@ -1,9 +1,13 @@
-package test.com.pricer.unittests;
+package com.pricer.unittests;
 
-import main.com.pricer.businesslogic.*;
-import main.com.pricer.interfaces.IOrderType;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import com.pricer.businesslogic.AddOrder;
+import com.pricer.businesslogic.OrderBook;
+import main.java.com.pricer.interfaces.IOrderType;
+
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -35,7 +39,7 @@ public class OrderBookTest
         helper = new File(".").getAbsolutePath();
         pathToPricer = helper.substring(0, helper.indexOf("/Pricer"));
 
-        inputFileNameAndPath =  pathToPricer + "/Pricer/InputFiles/PricerInput.txt";
+        inputFileNameAndPath =  pathToPricer + "/Pricer/InputFiles/PricerInput2.txt";
         filePathWithoutFile = pathToPricer + "/Pricer/InputFiles/";
         fileNameWithoutPath = "/PricerOutput.txt";
 

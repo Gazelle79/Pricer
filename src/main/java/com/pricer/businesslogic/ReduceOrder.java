@@ -1,4 +1,4 @@
-package main.com.pricer.businesslogic;
+package com.pricer.businesslogic;
 
 public class ReduceOrder extends Order
 {

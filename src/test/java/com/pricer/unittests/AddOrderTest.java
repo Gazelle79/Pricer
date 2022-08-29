@@ -1,10 +1,12 @@
-package test.com.pricer.unittests;
+package com.pricer.unittests;
 
-import main.com.pricer.businesslogic.AddOrder;
-import main.com.pricer.interfaces.IOrderType;
-import main.com.pricer.interfaces.ISide;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import com.pricer.businesslogic.AddOrder;
+import main.java.com.pricer.interfaces.IOrderType;
+import main.java.com.pricer.interfaces.ISide;
+
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 public class AddOrderTest
 {

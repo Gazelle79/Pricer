@@ -1,6 +1,9 @@
-package main.com.pricer.businesslogic;
+package com.pricer.businesslogic;
 
-import main.com.pricer.interfaces.*;
+//import com.pricer.interfaces.*;
+import main.java.com.pricer.interfaces.IAction;
+import main.java.com.pricer.interfaces.IOrderType;
+import main.java.com.pricer.interfaces.ISide;
 
 
 public class AddOrder extends Order implements IOrderType, ISide, IAction
