@@ -9,7 +9,10 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
+/**
+ Calculates all Add orders & Reduce orders. Prints profits from selling,
+ or expense incurred from buying.
+ */
 public class OrderBook implements ISide, IOrderType, IAction
 {
     private HashMap<String, AddOrder> orderMap = null;
@@ -26,6 +29,10 @@ public class OrderBook implements ISide, IOrderType, IAction
 
     private DecimalFormat twoDigitFormat = new DecimalFormat("0.00");
 
+    /**
+     Constructor. Initializes lists for buy orders & sell orders.
+     * @param targetSize The "target" number of shares to reach before you buy or sell the imaginary stock.
+     */
     public OrderBook(int targetSize)
     {
         this.targetSize = targetSize;
@@ -34,6 +41,12 @@ public class OrderBook implements ISide, IOrderType, IAction
         bidList = new ArrayList();  //Contains all BUY orders in OrderMap.
     }
 
+    /**
+     Reads all lines of financial data from a file. Breaks down each line of data into components to buy or sell shares.
+     *
+     * @param inputFileNameAndPath The filepath & name of the file you read financial data from.
+     * @return None.
+     */
     public void readFinanceData(String inputFileNameAndPath) throws IOException
     {
         BufferedReader reader = null;
