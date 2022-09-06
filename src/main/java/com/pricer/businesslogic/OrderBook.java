@@ -88,7 +88,7 @@ public class OrderBook implements ISide, IOrderType, IAction
 
                     case "R":
                     {
-                        //Make an Reduce order.
+                        //Make a Reduce order.
                         ReduceOrder reduceOrder = this.createReduceOrder(orderData);
                         if(reduceOrder != null)
                         {
@@ -107,6 +107,13 @@ public class OrderBook implements ISide, IOrderType, IAction
         reader.close();
     }
 
+    /**
+     Reads a single lines of financial data from a file. Determines if the order that was read is an Add or Reduce order,
+     & sends the order to its' appropriate method for calculating.
+     *
+     * @param orderToCalculate The specific line of financial data from a file.
+     * @return None.
+     */
     public void calculateFinanceData(Order orderToCalculate)
     {
         switch (orderToCalculate.orderType)
@@ -129,6 +136,14 @@ public class OrderBook implements ISide, IOrderType, IAction
         }
     }
 
+
+    /**
+     Reads a single Add Order. If it's a buy order, the number of bids are updated, along with the income from selling
+     shares. If it's a sell order, the number of asks are updated, along with the expense of buying shares.
+     *
+     * @param insertedOrder  The Add Order to be added to a tally of Add orders.
+     * @return None.
+     */
     private void calculateAddOrders(AddOrder insertedOrder)
     {
         if (insertedOrder.getSide() == side.BUY)
@@ -163,6 +178,13 @@ public class OrderBook implements ISide, IOrderType, IAction
         }
     }
 
+
+    /**
+     Reads a single Reduce Order. Subtracts the number of shares to buy from an existing Add Order.
+     *
+     * @param reduceOrder  An Order used to subtract shares from an existing Add Order.
+     * @return None.
+     */
     private void calculateReduceOrders(ReduceOrder reduceOrder)
     {
         String reduceOrderId = reduceOrder.getId();
@@ -246,6 +268,12 @@ public class OrderBook implements ISide, IOrderType, IAction
         }
     }
 
+    /**
+     Calculate the expense of buying shares of this stock. Multiplies the share price by the number of shares
+     that will be bought.
+     *
+     * @return The expense of buying shares of this stock.
+     */
     private double calculateExpense()
     {
         //Sort ALL bids from lowest to highest.
@@ -274,6 +302,12 @@ public class OrderBook implements ISide, IOrderType, IAction
         return expense;
     }
 
+    /**
+     Calculate the income from selling shares of this stock. Multiplies the share price by the number of shares
+     that will be sold.
+     *
+     * @return The income from selling shares of this stock.
+     */
     private double calculateIncome()
     {
         //Sort ALL bids from highest to lowest.
@@ -302,7 +336,11 @@ public class OrderBook implements ISide, IOrderType, IAction
         return income;
     }
 
-    //Write out Market data, where it's appropriate.
+    /**
+     Outputs new finance data, but only if the price changed.
+     *
+     * @return None. Data is displayed as output.
+     */
     public void writeFinanceData(int timestamp, char orderAction, double expenditure)
     {
         String expenseString = (expenditure > 0.0 ? twoDigitFormat.format(expenditure) :  "NA");
@@ -310,6 +348,12 @@ public class OrderBook implements ISide, IOrderType, IAction
     }
 
 
+    /**
+     Creates a single Add Order from a single line of financial data.
+     *
+     * @param marketDataText A single line of finance data read in from a text file.
+     * @return Fully populated Add Order.
+     */
     private AddOrder createAddOrder(String[] marketDataText)
     {
         AddOrder newAddOrder = null;
@@ -333,6 +377,13 @@ public class OrderBook implements ISide, IOrderType, IAction
         return newAddOrder;
     }
 
+
+    /**
+     Creates a single Reduce Order from a single line of financial data.
+     *
+     * @param marketDataText A single line of finance data read in from a text file.
+     * @return Fully populated Reduce Order.
+     */
     private ReduceOrder createReduceOrder(String[] marketDataText)
     {
         ReduceOrder newReduceOrder = null;
